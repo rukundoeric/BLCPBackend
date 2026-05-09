@@ -1,10 +1,9 @@
 package rw.blcp.backend.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.time.Instant;
 import lombok.Getter;
 import org.slf4j.MDC;
-
-import java.time.Instant;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -1,10 +1,9 @@
 package rw.blcp.backend.web.dto;
 
+import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
 import org.slf4j.MDC;
-
-import java.time.Instant;
 
 @Getter
 @Builder
@@ -24,10 +23,11 @@ public class ApiErrorResponse {
     public static ApiErrorResponse of(String errorCode, String errorMessage) {
         return ApiErrorResponse.builder()
                 .traceId(MDC.get("traceId"))
-                .error(ErrorDetail.builder()
-                        .errorCode(errorCode)
-                        .errorMessage(errorMessage)
-                        .build())
+                .error(
+                        ErrorDetail.builder()
+                                .errorCode(errorCode)
+                                .errorMessage(errorMessage)
+                                .build())
                 .timestamp(Instant.now())
                 .build();
     }

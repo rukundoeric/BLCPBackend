@@ -1,4 +1,4 @@
-package rw.blcp.backend.workflow.config;
+package rw.blcp.backend.workflow.enums;
 
 public enum EActionType {
     INVALID_STATE_TRANSITION_VALIDATION,

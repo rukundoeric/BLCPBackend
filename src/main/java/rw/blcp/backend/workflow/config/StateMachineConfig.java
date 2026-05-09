@@ -1,12 +1,11 @@
 package rw.blcp.backend.workflow.config;
 
-import static rw.blcp.backend.workflow.config.ActionDefinition.of;
-import static rw.blcp.backend.workflow.config.EActionType.APPLICANT_OWNERSHIP_VALIDATION;
-import static rw.blcp.backend.workflow.config.EActionType.INVALID_STATE_TRANSITION_VALIDATION;
-import static rw.blcp.backend.workflow.config.EActionType.NOTIFICATION;
-import static rw.blcp.backend.workflow.config.EActionType.OFFICER_LEVEL_VALIDATION;
-import static rw.blcp.backend.workflow.config.EActionType.RECORD_OFFICER_REVIEW;
-import static rw.blcp.backend.workflow.config.EActionType.REVIEWER_CONFLICT_CHECK;
+import static rw.blcp.backend.workflow.config.records.ActionDefinition.of;
+import static rw.blcp.backend.workflow.enums.EActionType.INVALID_STATE_TRANSITION_VALIDATION;
+import static rw.blcp.backend.workflow.enums.EActionType.NOTIFICATION;
+import static rw.blcp.backend.workflow.enums.EActionType.OFFICER_LEVEL_VALIDATION;
+import static rw.blcp.backend.workflow.enums.EActionType.RECORD_OFFICER_REVIEW;
+import static rw.blcp.backend.workflow.enums.EActionType.REVIEWER_CONFLICT_CHECK;
 import static rw.blcp.backend.workflow.enums.EApplicationEvent.APPLY;
 import static rw.blcp.backend.workflow.enums.EApplicationEvent.APPROVE;
 import static rw.blcp.backend.workflow.enums.EApplicationEvent.REJECT;
@@ -26,6 +25,10 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import rw.blcp.backend.workflow.config.records.OfficerLevelValidationArgs;
+import rw.blcp.backend.workflow.config.records.RecordOfficerReviewArgs;
+import rw.blcp.backend.workflow.config.records.TransitionDefinition;
+import rw.blcp.backend.workflow.config.records.TransitionKey;
 
 @Configuration
 public class StateMachineConfig {
@@ -48,8 +51,7 @@ public class StateMachineConfig {
                 LEVEL_1,
                 // Breaking actions: this is the list of things that should be successful. if any fails, the entire transitions should fail and revert everything
                 List.of(
-                    of(INVALID_STATE_TRANSITION_VALIDATION),
-                    of(APPLICANT_OWNERSHIP_VALIDATION)
+                    of(INVALID_STATE_TRANSITION_VALIDATION)
                 ),
                 // Non-breaking actions: these are executed in the backgound, if they fail, they can be logged but not fail the entire transition
                 List.of(

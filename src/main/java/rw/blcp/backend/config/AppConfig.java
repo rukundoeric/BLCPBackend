@@ -3,12 +3,14 @@ package rw.blcp.backend.config;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import rw.blcp.backend.auth.filter.JwtAuthFilter;
 import rw.blcp.backend.auth.repository.UserRepository;
 import rw.blcp.backend.auth.service.JwtService;
 
+@EnableAsync
 @Configuration
 public class AppConfig {
 

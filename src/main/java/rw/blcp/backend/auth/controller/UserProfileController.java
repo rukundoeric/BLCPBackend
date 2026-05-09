@@ -16,11 +16,11 @@ import rw.blcp.backend.core.dto.ApiResponse;
 @RequiredArgsConstructor
 public class UserProfileController {
 
-    private final UserProfileService userProfileService;
+  private final UserProfileService userProfileService;
 
-    @GetMapping("/user-profile")
-    public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(
-            @AuthenticationPrincipal User currentUser) {
-        return ResponseEntity.ok(ApiResponse.of(userProfileService.getProfile(currentUser)));
-    }
+  @GetMapping("/user-profile")
+  public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(
+      @AuthenticationPrincipal User currentUser) {
+    return ResponseEntity.ok(ApiResponse.of(userProfileService.getProfile(currentUser)));
+  }
 }

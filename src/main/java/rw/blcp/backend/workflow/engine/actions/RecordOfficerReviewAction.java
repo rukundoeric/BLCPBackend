@@ -15,28 +15,28 @@ import rw.blcp.backend.workflow.repository.ApplicationPreferenceRepository;
 @RequiredArgsConstructor
 public class RecordOfficerReviewAction implements Action<RecordOfficerReviewArgs> {
 
-    private final ApplicationPreferenceRepository preferenceRepository;
+  private final ApplicationPreferenceRepository preferenceRepository;
 
-    @Override
-    public EActionType getType() {
-        return EActionType.RECORD_OFFICER_REVIEW;
-    }
+  @Override
+  public EActionType getType() {
+    return EActionType.RECORD_OFFICER_REVIEW;
+  }
 
-    @Override
-    public void execute(TransitionContext ctx, RecordOfficerReviewArgs args) {
-        // This action is to record application preferences
-        upsert(ctx.application(), args.officerIdKey(), ctx.actor().getId().toString());
-        upsert(ctx.application(), args.commentKey(), ctx.comment() != null ? ctx.comment() : "");
-    }
+  @Override
+  public void execute(TransitionContext ctx, RecordOfficerReviewArgs args) {
+    // This action is to record application preferences
+    upsert(ctx.application(), args.officerIdKey(), ctx.actor().getId().toString());
+    upsert(ctx.application(), args.commentKey(), ctx.comment() != null ? ctx.comment() : "");
+  }
 
-    private void upsert(Application app, EPreferenceKey key, String value) {
-        ApplicationPreference pref =
-                preferenceRepository
-                        .findByApplicationAndPreferenceKey(app, key)
-                        .orElse(new ApplicationPreference());
-        pref.setApplication(app);
-        pref.setPreferenceKey(key);
-        pref.setValue(value);
-        preferenceRepository.save(pref);
-    }
+  private void upsert(Application app, EPreferenceKey key, String value) {
+    ApplicationPreference pref =
+        preferenceRepository
+            .findByApplicationAndPreferenceKey(app, key)
+            .orElse(new ApplicationPreference());
+    pref.setApplication(app);
+    pref.setPreferenceKey(key);
+    pref.setValue(value);
+    preferenceRepository.save(pref);
+  }
 }

@@ -11,5 +11,5 @@ import rw.blcp.backend.auth.RoleName;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RequiredRoles {
-    RoleName[] value();
+  RoleName[] value();
 }

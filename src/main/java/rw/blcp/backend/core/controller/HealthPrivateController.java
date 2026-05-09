@@ -13,9 +13,9 @@ import rw.blcp.backend.core.dto.ApiResponse;
 @RequestMapping("/api/v1")
 public class HealthPrivateController {
 
-    @GetMapping("/health")
-    @RequiredRoles({RoleName.OFFICER, RoleName.SENIOR_OFFICER})
-    public ResponseEntity<ApiResponse<Map<String, String>>> health() {
-        return ResponseEntity.ok(ApiResponse.of(Map.of("status", "UP")));
-    }
+  @GetMapping("/health")
+  @RequiredRoles({RoleName.OFFICER, RoleName.SENIOR_OFFICER})
+  public ResponseEntity<ApiResponse<Map<String, String>>> health() {
+    return ResponseEntity.ok(ApiResponse.of(Map.of("status", "UP")));
+  }
 }

@@ -8,15 +8,15 @@ import rw.blcp.backend.workflow.enums.EOfficerLevel;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApplicationResponse(
-        UUID id,
-        String applicationNumber,
-        EApplicationStatus status,
-        EOfficerLevel processingLevel,
-        String bankName,
-        String bankType,
-        String notes,
-        String applicantEmail,
-        String applicantFirstName,
-        String applicantLastName,
-        Instant createdAt,
-        Instant updatedAt) {}
+    UUID id,
+    String applicationNumber,
+    EApplicationStatus status,
+    EOfficerLevel processingLevel,
+    String bankName,
+    String bankType,
+    String notes,
+    String applicantEmail,
+    String applicantFirstName,
+    String applicantLastName,
+    Instant createdAt,
+    Instant updatedAt) {}

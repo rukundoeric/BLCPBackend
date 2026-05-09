@@ -21,14 +21,14 @@ import rw.blcp.backend.workflow.enums.EPreferenceKey;
 @NoArgsConstructor
 public class ApplicationPreference extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id", nullable = false)
-    private Application application;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "application_id", nullable = false)
+  private Application application;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "preference_key", nullable = false)
-    private EPreferenceKey preferenceKey;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "preference_key", nullable = false)
+  private EPreferenceKey preferenceKey;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String value;
+  @Column(nullable = false, columnDefinition = "TEXT")
+  private String value;
 }

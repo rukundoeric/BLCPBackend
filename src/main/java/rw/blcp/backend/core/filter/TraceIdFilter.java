@@ -17,29 +17,29 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class TraceIdFilter extends OncePerRequestFilter {
 
-    private static final String TRACE_ID_HEADER = "X-Trace-Id";
-    private static final String MDC_KEY = "traceId";
+  private static final String TRACE_ID_HEADER = "X-Trace-Id";
+  private static final String MDC_KEY = "traceId";
 
-    @Override
-    protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+  @Override
+  protected void doFilterInternal(
+      @NonNull HttpServletRequest request,
+      @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain)
+      throws ServletException, IOException {
 
-        String traceId = request.getHeader(TRACE_ID_HEADER);
-        if (!StringUtils.hasText(traceId)) {
-            traceId = UUID.randomUUID().toString();
-        }
-
-        MDC.put(MDC_KEY, traceId);
-        response.setHeader(TRACE_ID_HEADER, traceId);
-
-        try {
-            log.info("{} {}", request.getMethod(), request.getRequestURI());
-            filterChain.doFilter(request, response);
-        } finally {
-            MDC.remove(MDC_KEY);
-        }
+    String traceId = request.getHeader(TRACE_ID_HEADER);
+    if (!StringUtils.hasText(traceId)) {
+      traceId = UUID.randomUUID().toString();
     }
+
+    MDC.put(MDC_KEY, traceId);
+    response.setHeader(TRACE_ID_HEADER, traceId);
+
+    try {
+      log.info("{} {}", request.getMethod(), request.getRequestURI());
+      filterChain.doFilter(request, response);
+    } finally {
+      MDC.remove(MDC_KEY);
+    }
+  }
 }

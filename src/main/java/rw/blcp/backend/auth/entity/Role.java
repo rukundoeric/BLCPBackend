@@ -18,9 +18,9 @@ import rw.blcp.backend.core.entity.BaseEntity;
 @NoArgsConstructor
 public class Role extends BaseEntity {
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
-    private RoleName name;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, unique = true)
+  private RoleName name;
 
-    @Column private String description;
+  @Column private String description;
 }

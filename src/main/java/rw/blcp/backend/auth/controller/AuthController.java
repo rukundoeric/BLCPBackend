@@ -26,71 +26,71 @@ import rw.blcp.backend.exception.ErrorCode;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(
-            @Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+  @PostMapping("/login")
+  public ResponseEntity<ApiResponse<LoginResponse>> login(
+      @Valid @RequestBody LoginRequest request, HttpServletResponse response) {
 
-        AuthService.LoginResult result = authService.login(request);
+    AuthService.LoginResult result = authService.login(request);
 
-        setRefreshTokenCookie(response, result.rawRefreshToken());
+    setRefreshTokenCookie(response, result.rawRefreshToken());
 
-        return ResponseEntity.ok(ApiResponse.of(new LoginResponse(result.accessToken())));
+    return ResponseEntity.ok(ApiResponse.of(new LoginResponse(result.accessToken())));
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity<ApiResponse<LoginResponse>> refresh(
+      @CookieValue(name = "refreshToken", required = false) String rawRefreshToken,
+      HttpServletResponse response) {
+
+    if (rawRefreshToken == null) {
+      log.warn("Token refresh attempted with no refresh cookie");
+      throw new ApiException(ErrorCode.TOKEN_INVALID);
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<LoginResponse>> refresh(
-            @CookieValue(name = "refreshToken", required = false) String rawRefreshToken,
-            HttpServletResponse response) {
+    AuthService.TokenRefreshResult result = authService.refresh(rawRefreshToken);
 
-        if (rawRefreshToken == null) {
-            log.warn("Token refresh attempted with no refresh cookie");
-            throw new ApiException(ErrorCode.TOKEN_INVALID);
-        }
+    setRefreshTokenCookie(response, result.rawRefreshToken());
 
-        AuthService.TokenRefreshResult result = authService.refresh(rawRefreshToken);
+    return ResponseEntity.ok(ApiResponse.of(new LoginResponse(result.accessToken())));
+  }
 
-        setRefreshTokenCookie(response, result.rawRefreshToken());
+  @PostMapping("/logout")
+  public ResponseEntity<ApiResponse<Void>> logout(
+      @CookieValue(name = "refreshToken", required = false) String rawRefreshToken,
+      HttpServletResponse response) {
 
-        return ResponseEntity.ok(ApiResponse.of(new LoginResponse(result.accessToken())));
+    if (rawRefreshToken != null) {
+      authService.logout(rawRefreshToken);
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(
-            @CookieValue(name = "refreshToken", required = false) String rawRefreshToken,
-            HttpServletResponse response) {
+    clearRefreshTokenCookie(response);
 
-        if (rawRefreshToken != null) {
-            authService.logout(rawRefreshToken);
-        }
+    return ResponseEntity.ok(ApiResponse.of(null));
+  }
 
-        clearRefreshTokenCookie(response);
+  private void setRefreshTokenCookie(HttpServletResponse response, String token) {
+    ResponseCookie cookie =
+        ResponseCookie.from("refreshToken", token)
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Strict")
+            .path("/api/v1/public/auth/refresh")
+            .maxAge(Duration.ofHours(8))
+            .build();
+    response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+  }
 
-        return ResponseEntity.ok(ApiResponse.of(null));
-    }
-
-    private void setRefreshTokenCookie(HttpServletResponse response, String token) {
-        ResponseCookie cookie =
-                ResponseCookie.from("refreshToken", token)
-                        .httpOnly(true)
-                        .secure(true)
-                        .sameSite("Strict")
-                        .path("/api/v1/public/auth/refresh")
-                        .maxAge(Duration.ofHours(8))
-                        .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-    }
-
-    private void clearRefreshTokenCookie(HttpServletResponse response) {
-        ResponseCookie cookie =
-                ResponseCookie.from("refreshToken", "")
-                        .httpOnly(true)
-                        .secure(true)
-                        .sameSite("Strict")
-                        .path("/api/v1/public/auth/refresh")
-                        .maxAge(Duration.ZERO)
-                        .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-    }
+  private void clearRefreshTokenCookie(HttpServletResponse response) {
+    ResponseCookie cookie =
+        ResponseCookie.from("refreshToken", "")
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Strict")
+            .path("/api/v1/public/auth/refresh")
+            .maxAge(Duration.ZERO)
+            .build();
+    response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+  }
 }

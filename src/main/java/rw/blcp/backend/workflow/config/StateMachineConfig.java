@@ -1,10 +1,10 @@
 package rw.blcp.backend.workflow.config;
 
 import static rw.blcp.backend.workflow.config.records.ActionDefinition.of;
+import static rw.blcp.backend.workflow.enums.EActionType.DUPLICATE_REVIEWER_VALIDATION;
 import static rw.blcp.backend.workflow.enums.EActionType.NOTIFICATION;
 import static rw.blcp.backend.workflow.enums.EActionType.OFFICER_LEVEL_VALIDATION;
 import static rw.blcp.backend.workflow.enums.EActionType.RECORD_OFFICER_REVIEW;
-import static rw.blcp.backend.workflow.enums.EActionType.DUPLICATE_REVIEWER_VALIDATION;
 import static rw.blcp.backend.workflow.enums.EApplicationEvent.APPLY;
 import static rw.blcp.backend.workflow.enums.EApplicationEvent.APPROVE;
 import static rw.blcp.backend.workflow.enums.EApplicationEvent.REJECT;
@@ -32,91 +32,79 @@ import rw.blcp.backend.workflow.config.records.TransitionKey;
 @Configuration
 public class StateMachineConfig {
 
-    @Bean
-    public Map<TransitionKey, TransitionDefinition> stateMachineTransitions() {
-        return Map.of(
+  @Bean
+  public Map<TransitionKey, TransitionDefinition> stateMachineTransitions() {
+    return Map.of(
 
-                // I'm using a key value pair method so that The engine does a single
-                // map.get(new TransitionKey(event, app.getStatus())) achieving O(1) lookup, no
-                // iteration when trying to fin the transition.
-                new TransitionKey(APPLY, NEW),
-                new TransitionDefinition(
-                        // Triggered event
-                        APPLY,
-                        // Current state
-                        NEW,
-                        // Final state
-                        SUBMITTED,
-                        // Final processing level(this will dectate who can see this application in
-                        // thier dashboard)
-                        LEVEL_1,
-                        // Breaking actions: this is the list of things that should be successful.
-                        // if any fails, the entire transitions should fail and revert everything
-                        List.of(),
-                        // Non-breaking actions: these are executed in the backgound, if they fail,
-                        // they can be logged but not fail the entire transition
-                        List.of(of(NOTIFICATION))),
-                new TransitionKey(APPROVE, SUBMITTED),
-                new TransitionDefinition(
-                        APPROVE,
-                        SUBMITTED,
-                        PENDING_FINAL_APPROVAL,
-                        LEVEL_2,
-                        List.of(
-                                of(
-                                        OFFICER_LEVEL_VALIDATION,
-                                        new OfficerLevelValidationArgs(LEVEL_1)),
-                                of(
-                                        RECORD_OFFICER_REVIEW,
-                                        new RecordOfficerReviewArgs(
-                                                LEVEL1_OFFICER_ID, LEVEL1_OFFICER_COMMENT))),
-                        List.of(of(NOTIFICATION))),
-                new TransitionKey(REJECT, SUBMITTED),
-                new TransitionDefinition(
-                        REJECT,
-                        SUBMITTED,
-                        REJECTED,
-                        LEVEL_1,
-                        List.of(
-                                of(
-                                        OFFICER_LEVEL_VALIDATION,
-                                        new OfficerLevelValidationArgs(LEVEL_1)),
-                                of(
-                                        RECORD_OFFICER_REVIEW,
-                                        new RecordOfficerReviewArgs(
-                                                LEVEL1_OFFICER_ID, LEVEL1_OFFICER_COMMENT))),
-                        List.of(of(NOTIFICATION))),
-                new TransitionKey(APPROVE, PENDING_FINAL_APPROVAL),
-                new TransitionDefinition(
-                        APPROVE,
-                        PENDING_FINAL_APPROVAL,
-                        APPROVED,
-                        LEVEL_2,
-                        List.of(
-                                of(
-                                        OFFICER_LEVEL_VALIDATION,
-                                        new OfficerLevelValidationArgs(LEVEL_2)),
-                                of(DUPLICATE_REVIEWER_VALIDATION),
-                                of(
-                                        RECORD_OFFICER_REVIEW,
-                                        new RecordOfficerReviewArgs(
-                                                LEVEL2_OFFICER_ID, LEVEL2_OFFICER_COMMENT))),
-                        List.of(of(NOTIFICATION))),
-                new TransitionKey(REJECT, PENDING_FINAL_APPROVAL),
-                new TransitionDefinition(
-                        REJECT,
-                        PENDING_FINAL_APPROVAL,
-                        REJECTED,
-                        null,
-                        List.of(
-                                of(
-                                        OFFICER_LEVEL_VALIDATION,
-                                        new OfficerLevelValidationArgs(LEVEL_2)),
-                                of(DUPLICATE_REVIEWER_VALIDATION),
-                                of(
-                                        RECORD_OFFICER_REVIEW,
-                                        new RecordOfficerReviewArgs(
-                                                LEVEL2_OFFICER_ID, LEVEL2_OFFICER_COMMENT))),
-                        List.of(of(NOTIFICATION))));
-    }
+        // I'm using a key value pair method so that The engine does a single
+        // map.get(new TransitionKey(event, app.getStatus())) achieving O(1) lookup, no
+        // iteration when trying to fin the transition.
+        new TransitionKey(APPLY, NEW),
+        new TransitionDefinition(
+            // Triggered event
+            APPLY,
+            // Current state
+            NEW,
+            // Final state
+            SUBMITTED,
+            // Final processing level(this will dectate who can see this application in
+            // thier dashboard)
+            LEVEL_1,
+            // Breaking actions: this is the list of things that should be successful.
+            // if any fails, the entire transitions should fail and revert everything
+            List.of(),
+            // Non-breaking actions: these are executed in the backgound, if they fail,
+            // they can be logged but not fail the entire transition
+            List.of(of(NOTIFICATION))),
+        new TransitionKey(APPROVE, SUBMITTED),
+        new TransitionDefinition(
+            APPROVE,
+            SUBMITTED,
+            PENDING_FINAL_APPROVAL,
+            LEVEL_2,
+            List.of(
+                of(OFFICER_LEVEL_VALIDATION, new OfficerLevelValidationArgs(LEVEL_1)),
+                of(
+                    RECORD_OFFICER_REVIEW,
+                    new RecordOfficerReviewArgs(LEVEL1_OFFICER_ID, LEVEL1_OFFICER_COMMENT))),
+            List.of(of(NOTIFICATION))),
+        new TransitionKey(REJECT, SUBMITTED),
+        new TransitionDefinition(
+            REJECT,
+            SUBMITTED,
+            REJECTED,
+            LEVEL_1,
+            List.of(
+                of(OFFICER_LEVEL_VALIDATION, new OfficerLevelValidationArgs(LEVEL_1)),
+                of(
+                    RECORD_OFFICER_REVIEW,
+                    new RecordOfficerReviewArgs(LEVEL1_OFFICER_ID, LEVEL1_OFFICER_COMMENT))),
+            List.of(of(NOTIFICATION))),
+        new TransitionKey(APPROVE, PENDING_FINAL_APPROVAL),
+        new TransitionDefinition(
+            APPROVE,
+            PENDING_FINAL_APPROVAL,
+            APPROVED,
+            LEVEL_2,
+            List.of(
+                of(OFFICER_LEVEL_VALIDATION, new OfficerLevelValidationArgs(LEVEL_2)),
+                of(DUPLICATE_REVIEWER_VALIDATION),
+                of(
+                    RECORD_OFFICER_REVIEW,
+                    new RecordOfficerReviewArgs(LEVEL2_OFFICER_ID, LEVEL2_OFFICER_COMMENT))),
+            List.of(of(NOTIFICATION))),
+        new TransitionKey(REJECT, PENDING_FINAL_APPROVAL),
+        new TransitionDefinition(
+            REJECT,
+            PENDING_FINAL_APPROVAL,
+            REJECTED,
+            null,
+            List.of(
+                of(OFFICER_LEVEL_VALIDATION, new OfficerLevelValidationArgs(LEVEL_2)),
+                of(DUPLICATE_REVIEWER_VALIDATION),
+                of(
+                    RECORD_OFFICER_REVIEW,
+                    new RecordOfficerReviewArgs(LEVEL2_OFFICER_ID, LEVEL2_OFFICER_COMMENT))),
+            List.of(of(NOTIFICATION))));
+  }
 }

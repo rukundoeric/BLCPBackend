@@ -14,20 +14,20 @@ import rw.blcp.backend.auth.service.JwtService;
 @Configuration
 public class AppConfig {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public JwtAuthFilter jwtAuthFilter(JwtService jwtService, UserRepository userRepository) {
-        return new JwtAuthFilter(jwtService, userRepository);
-    }
+  @Bean
+  public JwtAuthFilter jwtAuthFilter(JwtService jwtService, UserRepository userRepository) {
+    return new JwtAuthFilter(jwtService, userRepository);
+  }
 
-    @Bean
-    public FilterRegistrationBean<JwtAuthFilter> jwtFilterRegistration(JwtAuthFilter filter) {
-        FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
-        registration.setEnabled(false);
-        return registration;
-    }
+  @Bean
+  public FilterRegistrationBean<JwtAuthFilter> jwtFilterRegistration(JwtAuthFilter filter) {
+    FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
+  }
 }

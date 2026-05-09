@@ -22,80 +22,80 @@ import rw.blcp.backend.workflow.repository.ApplicationStateTransitionRepository;
 @RequiredArgsConstructor
 public class StateMachineEngine {
 
-    private final Map<TransitionKey, TransitionDefinition> stateMachineTransitions;
-    private final ActionRegistry actionRegistry;
-    private final ApplicationStateTransitionRepository transitionRepository;
+  private final Map<TransitionKey, TransitionDefinition> stateMachineTransitions;
+  private final ActionRegistry actionRegistry;
+  private final ApplicationStateTransitionRepository transitionRepository;
 
-    public void execute(EApplicationEvent event, TransitionContext ctx) {
-        Application app = ctx.application();
-        TransitionKey key = new TransitionKey(event, app.getStatus());
+  public void execute(EApplicationEvent event, TransitionContext ctx) {
+    Application app = ctx.application();
+    TransitionKey key = new TransitionKey(event, app.getStatus());
 
-        TransitionDefinition definition = stateMachineTransitions.get(key);
-        if (definition == null) {
-            log.warn(
-                    "No transition found for event={} fromState={} application={}",
-                    event,
-                    app.getStatus(),
-                    app.getId());
-            throw new ApiException(ErrorCode.INVALID_STATE_TRANSITION);
-        }
-
-        runBreakingActions(definition, ctx);
-
-        EApplicationStatus previousStatus = app.getStatus();
-        app.setStatus(definition.toState());
-        if (definition.processingLevel() != null) {
-            app.setProcessingLevel(definition.processingLevel());
-        }
-
-        logTransition(app, event, previousStatus, definition.toState(), ctx);
-
-        runNonBreakingActions(definition, ctx);
+    TransitionDefinition definition = stateMachineTransitions.get(key);
+    if (definition == null) {
+      log.warn(
+          "No transition found for event={} fromState={} application={}",
+          event,
+          app.getStatus(),
+          app.getId());
+      throw new ApiException(ErrorCode.INVALID_STATE_TRANSITION);
     }
 
-    private void runBreakingActions(TransitionDefinition definition, TransitionContext ctx) {
-        for (ActionDefinition action : definition.breakingActions()) {
-            actionRegistry.get(action.actionType()).execute(ctx, action.args());
-        }
+    runBreakingActions(definition, ctx);
+
+    EApplicationStatus previousStatus = app.getStatus();
+    app.setStatus(definition.toState());
+    if (definition.processingLevel() != null) {
+      app.setProcessingLevel(definition.processingLevel());
     }
 
-    private void runNonBreakingActions(TransitionDefinition definition, TransitionContext ctx) {
-        for (ActionDefinition action : definition.nonBreakingActions()) {
-            CompletableFuture.runAsync(
-                    () -> {
-                        try {
-                            actionRegistry.get(action.actionType()).execute(ctx, action.args());
-                        } catch (Exception e) {
-                            log.warn(
-                                    "Non-breaking action {} failed for application {} — {}",
-                                    action.actionType(),
-                                    ctx.application().getId(),
-                                    e.getMessage());
-                        }
-                    });
-        }
-    }
+    logTransition(app, event, previousStatus, definition.toState(), ctx);
 
-    private void logTransition(
-            Application app,
-            EApplicationEvent event,
-            EApplicationStatus previousStatus,
-            EApplicationStatus newStatus,
-            TransitionContext ctx) {
-        ApplicationStateTransition applicationStateTransition = new ApplicationStateTransition();
-        applicationStateTransition.setApplicationNumber(app.getApplicationNumber());
-        applicationStateTransition.setApplication(app);
-        applicationStateTransition.setEvent(event);
-        applicationStateTransition.setInitialState(previousStatus);
-        applicationStateTransition.setNewState(newStatus);
-        applicationStateTransition.setActor(ctx.actor());
-        transitionRepository.save(applicationStateTransition);
-        log.info(
-                "Transition logged: application={} event={} {} -> {} actor={}",
-                app.getApplicationNumber(),
-                event,
-                previousStatus,
-                newStatus,
-                ctx.actor() != null ? ctx.actor().getEmail() : "guest");
+    runNonBreakingActions(definition, ctx);
+  }
+
+  private void runBreakingActions(TransitionDefinition definition, TransitionContext ctx) {
+    for (ActionDefinition action : definition.breakingActions()) {
+      actionRegistry.get(action.actionType()).execute(ctx, action.args());
     }
+  }
+
+  private void runNonBreakingActions(TransitionDefinition definition, TransitionContext ctx) {
+    for (ActionDefinition action : definition.nonBreakingActions()) {
+      CompletableFuture.runAsync(
+          () -> {
+            try {
+              actionRegistry.get(action.actionType()).execute(ctx, action.args());
+            } catch (Exception e) {
+              log.warn(
+                  "Non-breaking action {} failed for application {} — {}",
+                  action.actionType(),
+                  ctx.application().getId(),
+                  e.getMessage());
+            }
+          });
+    }
+  }
+
+  private void logTransition(
+      Application app,
+      EApplicationEvent event,
+      EApplicationStatus previousStatus,
+      EApplicationStatus newStatus,
+      TransitionContext ctx) {
+    ApplicationStateTransition applicationStateTransition = new ApplicationStateTransition();
+    applicationStateTransition.setApplicationNumber(app.getApplicationNumber());
+    applicationStateTransition.setApplication(app);
+    applicationStateTransition.setEvent(event);
+    applicationStateTransition.setInitialState(previousStatus);
+    applicationStateTransition.setNewState(newStatus);
+    applicationStateTransition.setActor(ctx.actor());
+    transitionRepository.save(applicationStateTransition);
+    log.info(
+        "Transition logged: application={} event={} {} -> {} actor={}",
+        app.getApplicationNumber(),
+        event,
+        previousStatus,
+        newStatus,
+        ctx.actor() != null ? ctx.actor().getEmail() : "guest");
+  }
 }

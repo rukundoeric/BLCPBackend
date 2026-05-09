@@ -26,64 +26,61 @@ import rw.blcp.backend.exception.ErrorCode;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
-    private final UserRepository userRepository;
+  private final JwtService jwtService;
+  private final UserRepository userRepository;
 
-    @Override
-    protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+  @Override
+  protected void doFilterInternal(
+      @NonNull HttpServletRequest request,
+      @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain)
+      throws ServletException, IOException {
 
-        String token = extractBearerToken(request);
-        if (token == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+    String token = extractBearerToken(request);
+    if (token == null) {
+      filterChain.doFilter(request, response);
+      return;
+    }
 
-        try {
-            Claims claims = jwtService.validateAndExtract(token);
-            UUID userId = UUID.fromString(claims.getSubject());
+    try {
+      Claims claims = jwtService.validateAndExtract(token);
+      UUID userId = UUID.fromString(claims.getSubject());
 
-            User user =
-                    userRepository
-                            .findById(userId)
-                            .orElseThrow(
-                                    () ->
-                                            new ApiException(
-                                                    rw.blcp.backend.exception.ErrorCode
-                                                            .TOKEN_INVALID));
+      User user =
+          userRepository
+              .findById(userId)
+              .orElseThrow(
+                  () -> new ApiException(rw.blcp.backend.exception.ErrorCode.TOKEN_INVALID));
 
-            if (user.getState() != RecordState.ACTIVE) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            var authorities =
-                    user.getRoles().stream()
-                            .map(r -> new SimpleGrantedAuthority("ROLE_" + r.getName().name()))
-                            .toList();
-
-            var auth = new UsernamePasswordAuthenticationToken(user, null, authorities);
-            SecurityContextHolder.getContext().setAuthentication(auth);
-
-        } catch (ApiException e) {
-            if (e.getErrorCode() == ErrorCode.TOKEN_EXPIRED) {
-                log.debug("Expired token on {}", request.getRequestURI());
-            } else {
-                log.warn("Invalid token on {}: {}", request.getRequestURI(), e.getMessage());
-            }
-        }
-
+      if (user.getState() != RecordState.ACTIVE) {
         filterChain.doFilter(request, response);
+        return;
+      }
+
+      var authorities =
+          user.getRoles().stream()
+              .map(r -> new SimpleGrantedAuthority("ROLE_" + r.getName().name()))
+              .toList();
+
+      var auth = new UsernamePasswordAuthenticationToken(user, null, authorities);
+      SecurityContextHolder.getContext().setAuthentication(auth);
+
+    } catch (ApiException e) {
+      if (e.getErrorCode() == ErrorCode.TOKEN_EXPIRED) {
+        log.debug("Expired token on {}", request.getRequestURI());
+      } else {
+        log.warn("Invalid token on {}: {}", request.getRequestURI(), e.getMessage());
+      }
     }
 
-    private String extractBearerToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
-            return header.substring(7);
-        }
-        return null;
+    filterChain.doFilter(request, response);
+  }
+
+  private String extractBearerToken(HttpServletRequest request) {
+    String header = request.getHeader("Authorization");
+    if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
+      return header.substring(7);
     }
+    return null;
+  }
 }

@@ -23,46 +23,44 @@ import rw.blcp.backend.exception.ErrorCode;
 @Component
 public class AuthorizationAspect {
 
-    @Pointcut("@within(rw.blcp.backend.auth.annotation.RequiredRoles)")
-    private void classLevelRole() {}
+  @Pointcut("@within(rw.blcp.backend.auth.annotation.RequiredRoles)")
+  private void classLevelRole() {}
 
-    @Pointcut("@annotation(rw.blcp.backend.auth.annotation.RequiredRoles)")
-    private void methodLevelRole() {}
+  @Pointcut("@annotation(rw.blcp.backend.auth.annotation.RequiredRoles)")
+  private void methodLevelRole() {}
 
-    @Pointcut("classLevelRole() || methodLevelRole()")
-    private void rolesRequired() {}
+  @Pointcut("classLevelRole() || methodLevelRole()")
+  private void rolesRequired() {}
 
-    @Before("rolesRequired()")
-    public void checkRoles(JoinPoint joinPoint) {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+  @Before("rolesRequired()")
+  public void checkRoles(JoinPoint joinPoint) {
+    MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 
-        RequiredRoles requiredRoles = signature.getMethod().getAnnotation(RequiredRoles.class);
-        if (requiredRoles == null) {
-            requiredRoles = joinPoint.getTarget().getClass().getAnnotation(RequiredRoles.class);
-        }
-        if (requiredRoles == null) {
-            return;
-        }
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null
-                || !auth.isAuthenticated()
-                || !(auth.getPrincipal() instanceof User user)) {
-            log.warn("Unauthenticated access attempt on {}", joinPoint.getSignature());
-            throw new ApiException(ErrorCode.TOKEN_INVALID);
-        }
-
-        Set<RoleName> userRoles =
-                user.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet());
-
-        boolean hasRole = Arrays.stream(requiredRoles.value()).anyMatch(userRoles::contains);
-        if (!hasRole) {
-            log.warn(
-                    "Access denied for {} — has {} but needs one of {}",
-                    user.getEmail(),
-                    userRoles,
-                    Arrays.asList(requiredRoles.value()));
-            throw new ApiException(ErrorCode.ACCESS_DENIED);
-        }
+    RequiredRoles requiredRoles = signature.getMethod().getAnnotation(RequiredRoles.class);
+    if (requiredRoles == null) {
+      requiredRoles = joinPoint.getTarget().getClass().getAnnotation(RequiredRoles.class);
     }
+    if (requiredRoles == null) {
+      return;
+    }
+
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User user)) {
+      log.warn("Unauthenticated access attempt on {}", joinPoint.getSignature());
+      throw new ApiException(ErrorCode.TOKEN_INVALID);
+    }
+
+    Set<RoleName> userRoles =
+        user.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet());
+
+    boolean hasRole = Arrays.stream(requiredRoles.value()).anyMatch(userRoles::contains);
+    if (!hasRole) {
+      log.warn(
+          "Access denied for {} — has {} but needs one of {}",
+          user.getEmail(),
+          userRoles,
+          Arrays.asList(requiredRoles.value()));
+      throw new ApiException(ErrorCode.ACCESS_DENIED);
+    }
+  }
 }

@@ -11,8 +11,8 @@ import rw.blcp.backend.core.dto.ApiResponse;
 @RequestMapping("/api/v1/public")
 public class HealthController {
 
-    @GetMapping("/health")
-    public ResponseEntity<ApiResponse<Map<String, String>>> health() {
-        return ResponseEntity.ok(ApiResponse.of(Map.of("status", "UP")));
-    }
+  @GetMapping("/health")
+  public ResponseEntity<ApiResponse<Map<String, String>>> health() {
+    return ResponseEntity.ok(ApiResponse.of(Map.of("status", "UP")));
+  }
 }

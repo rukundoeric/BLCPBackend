@@ -5,4 +5,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import rw.blcp.backend.workflow.entity.ApplicationStateTransition;
 
 public interface ApplicationStateTransitionRepository
-        extends JpaRepository<ApplicationStateTransition, UUID> {}
+    extends JpaRepository<ApplicationStateTransition, UUID> {}

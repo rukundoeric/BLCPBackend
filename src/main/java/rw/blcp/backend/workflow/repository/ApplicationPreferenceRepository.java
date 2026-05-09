@@ -8,8 +8,8 @@ import rw.blcp.backend.workflow.entity.ApplicationPreference;
 import rw.blcp.backend.workflow.enums.EPreferenceKey;
 
 public interface ApplicationPreferenceRepository
-        extends JpaRepository<ApplicationPreference, UUID> {
+    extends JpaRepository<ApplicationPreference, UUID> {
 
-    Optional<ApplicationPreference> findByApplicationAndPreferenceKey(
-            Application application, EPreferenceKey preferenceKey);
+  Optional<ApplicationPreference> findByApplicationAndPreferenceKey(
+      Application application, EPreferenceKey preferenceKey);
 }

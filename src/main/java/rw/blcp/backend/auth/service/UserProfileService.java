@@ -11,11 +11,9 @@ import rw.blcp.backend.auth.entity.User;
 @Service
 public class UserProfileService {
 
-    public UserProfileResponse getProfile(User user) {
-        Set<RoleName> roles =
-                user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
+  public UserProfileResponse getProfile(User user) {
+    Set<RoleName> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
 
-        return new UserProfileResponse(
-                user.getEmail(), user.getFirstName(), user.getLastName(), roles);
-    }
+    return new UserProfileResponse(user.getEmail(), user.getFirstName(), user.getLastName(), roles);
+  }
 }

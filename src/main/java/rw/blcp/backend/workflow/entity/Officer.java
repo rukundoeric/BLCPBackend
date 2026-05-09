@@ -23,15 +23,15 @@ import rw.blcp.backend.workflow.enums.EOfficerLevel;
 @NoArgsConstructor
 public class Officer extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "role_id", nullable = false)
+  private Role role;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EOfficerLevel level;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private EOfficerLevel level;
 }

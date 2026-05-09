@@ -19,19 +19,19 @@ import rw.blcp.backend.core.entity.BaseEntity;
 @NoArgsConstructor
 public class Attachment extends BaseEntity {
 
-    @Column(nullable = false)
-    private String filename;
+  @Column(nullable = false)
+  private String filename;
 
-    @Column(name = "mime_type", nullable = false)
-    private String mimeType;
+  @Column(name = "mime_type", nullable = false)
+  private String mimeType;
 
-    @Column(name = "file_size", nullable = false)
-    private Long fileSize;
+  @Column(name = "file_size", nullable = false)
+  private Long fileSize;
 
-    @Column(name = "file_path", nullable = false)
-    private String filePath;
+  @Column(name = "file_path", nullable = false)
+  private String filePath;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uploaded_by_id")
-    private User uploadedBy;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "uploaded_by_id")
+  private User uploadedBy;
 }

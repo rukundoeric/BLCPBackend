@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import rw.blcp.backend.workflow.entity.Application;
 
 public interface ApplicationRepository
-        extends JpaRepository<Application, UUID>, JpaSpecificationExecutor<Application> {
+    extends JpaRepository<Application, UUID>, JpaSpecificationExecutor<Application> {
 
-    Optional<Application> findByApplicationNumber(String applicationNumber);
+  Optional<Application> findByApplicationNumber(String applicationNumber);
 }

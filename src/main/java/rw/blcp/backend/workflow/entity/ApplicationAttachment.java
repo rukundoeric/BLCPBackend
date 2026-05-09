@@ -21,15 +21,15 @@ import rw.blcp.backend.workflow.enums.EDocumentType;
 @NoArgsConstructor
 public class ApplicationAttachment extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id", nullable = false)
-    private Application application;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "application_id", nullable = false)
+  private Application application;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attachment_id", nullable = false)
-    private Attachment attachment;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "attachment_id", nullable = false)
+  private Attachment attachment;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "document_type", nullable = false)
-    private EDocumentType EDocumentType;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "document_type", nullable = false)
+  private EDocumentType EDocumentType;
 }

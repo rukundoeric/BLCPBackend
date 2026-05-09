@@ -16,29 +16,29 @@ import rw.blcp.backend.workflow.repository.OfficerRepository;
 @RequiredArgsConstructor
 public class OfficerLevelValidationAction implements Action<OfficerLevelValidationArgs> {
 
-    private final OfficerRepository officerRepository;
+  private final OfficerRepository officerRepository;
 
-    @Override
-    public EActionType getType() {
-        return EActionType.OFFICER_LEVEL_VALIDATION;
+  @Override
+  public EActionType getType() {
+    return EActionType.OFFICER_LEVEL_VALIDATION;
+  }
+
+  @Override
+  public void execute(TransitionContext ctx, OfficerLevelValidationArgs args) {
+    /* This is validate if the  officer triggering this event have the level that allows them to do so */
+    if (ctx.actor() == null) {
+      throw new ApiException(ErrorCode.ACCESS_DENIED);
     }
 
-    @Override
-    public void execute(TransitionContext ctx, OfficerLevelValidationArgs args) {
-        /* This is validate if the  officer triggering this event have the level that allows them to do so */
-        if (ctx.actor() == null) {
-            throw new ApiException(ErrorCode.ACCESS_DENIED);
-        }
-
-        officerRepository
-                .findByUserAndLevel(ctx.actor(), args.requiredLevel())
-                .orElseThrow(
-                        () -> {
-                            log.warn(
-                                    "User {} does not hold officer level {} required for this transition",
-                                    ctx.actor().getEmail(),
-                                    args.requiredLevel());
-                            return new ApiException(ErrorCode.ACCESS_DENIED);
-                        });
-    }
+    officerRepository
+        .findByUserAndLevel(ctx.actor(), args.requiredLevel())
+        .orElseThrow(
+            () -> {
+              log.warn(
+                  "User {} does not hold officer level {} required for this transition",
+                  ctx.actor().getEmail(),
+                  args.requiredLevel());
+              return new ApiException(ErrorCode.ACCESS_DENIED);
+            });
+  }
 }

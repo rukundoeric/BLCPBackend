@@ -23,36 +23,36 @@ import rw.blcp.backend.workflow.enums.EOfficerLevel;
 @NoArgsConstructor
 public class Application extends BaseEntity {
 
-    @Column(name = "application_number", nullable = false, unique = true)
-    private String applicationNumber;
+  @Column(name = "application_number", nullable = false, unique = true)
+  private String applicationNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applicant_id")
-    private User applicant;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "applicant_id")
+  private User applicant;
 
-    @Column(name = "applicant_email", nullable = false)
-    private String applicantEmail;
+  @Column(name = "applicant_email", nullable = false)
+  private String applicantEmail;
 
-    @Column(name = "applicant_first_name", nullable = false)
-    private String applicantFirstName;
+  @Column(name = "applicant_first_name", nullable = false)
+  private String applicantFirstName;
 
-    @Column(name = "applicant_last_name", nullable = false)
-    private String applicantLastName;
+  @Column(name = "applicant_last_name", nullable = false)
+  private String applicantLastName;
 
-    @Column(name = "bank_name", nullable = false)
-    private String bankName;
+  @Column(name = "bank_name", nullable = false)
+  private String bankName;
 
-    @Column(name = "bank_type", nullable = false)
-    private String bankType;
+  @Column(name = "bank_type", nullable = false)
+  private String bankType;
 
-    @Column(columnDefinition = "TEXT")
-    private String notes;
+  @Column(columnDefinition = "TEXT")
+  private String notes;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EApplicationStatus status = EApplicationStatus.NEW;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private EApplicationStatus status = EApplicationStatus.NEW;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "processing_level", nullable = false)
-    private EOfficerLevel processingLevel = EOfficerLevel.LEVEL_1;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "processing_level", nullable = false)
+  private EOfficerLevel processingLevel = EOfficerLevel.LEVEL_1;
 }

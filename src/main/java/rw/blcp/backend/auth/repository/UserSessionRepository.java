@@ -8,7 +8,7 @@ import rw.blcp.backend.auth.entity.UserSession;
 
 public interface UserSessionRepository extends JpaRepository<UserSession, UUID> {
 
-    Optional<UserSession> findByTokenHash(String tokenHash);
+  Optional<UserSession> findByTokenHash(String tokenHash);
 
-    void deleteAllByUser(User user);
+  void deleteAllByUser(User user);
 }

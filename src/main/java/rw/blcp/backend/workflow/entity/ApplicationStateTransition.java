@@ -23,26 +23,26 @@ import rw.blcp.backend.workflow.enums.EApplicationStatus;
 @NoArgsConstructor
 public class ApplicationStateTransition extends BaseEntity {
 
-    @Column(name = "application_number", nullable = false)
-    private String applicationNumber;
+  @Column(name = "application_number", nullable = false)
+  private String applicationNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id", nullable = false)
-    private Application application;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "application_id", nullable = false)
+  private Application application;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EApplicationEvent event;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private EApplicationEvent event;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "initial_state", nullable = false)
-    private EApplicationStatus initialState;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "initial_state", nullable = false)
+  private EApplicationStatus initialState;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "new_state", nullable = false)
-    private EApplicationStatus newState;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "new_state", nullable = false)
+  private EApplicationStatus newState;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "actor_id")
-    private User actor;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "actor_id")
+  private User actor;
 }

@@ -9,5 +9,5 @@ import rw.blcp.backend.workflow.enums.EOfficerLevel;
 
 public interface OfficerRepository extends JpaRepository<Officer, UUID> {
 
-    Optional<Officer> findByUserAndLevel(User user, EOfficerLevel level);
+  Optional<Officer> findByUserAndLevel(User user, EOfficerLevel level);
 }

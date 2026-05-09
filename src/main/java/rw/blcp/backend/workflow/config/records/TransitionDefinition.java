@@ -6,9 +6,9 @@ import rw.blcp.backend.workflow.enums.EApplicationStatus;
 import rw.blcp.backend.workflow.enums.EOfficerLevel;
 
 public record TransitionDefinition(
-        EApplicationEvent event,
-        EApplicationStatus fromState,
-        EApplicationStatus toState,
-        EOfficerLevel processingLevel,
-        List<ActionDefinition> breakingActions,
-        List<ActionDefinition> nonBreakingActions) {}
+    EApplicationEvent event,
+    EApplicationStatus fromState,
+    EApplicationStatus toState,
+    EOfficerLevel processingLevel,
+    List<ActionDefinition> breakingActions,
+    List<ActionDefinition> nonBreakingActions) {}

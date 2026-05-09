@@ -24,53 +24,50 @@ import rw.blcp.backend.exception.ErrorCode;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
-    private final ObjectMapper objectMapper;
+  private final JwtAuthFilter jwtAuthFilter;
+  private final ObjectMapper objectMapper;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        auth ->
-                                auth.requestMatchers("/api/v1/public/**")
-                                        .permitAll()
-                                        .anyRequest()
-                                        .authenticated())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(
-                        ex ->
-                                ex.authenticationEntryPoint(
-                                                (request, response, authException) ->
-                                                        writeError(
-                                                                response,
-                                                                HttpServletResponse.SC_UNAUTHORIZED,
-                                                                ErrorCode.TOKEN_INVALID))
-                                        .accessDeniedHandler(
-                                                (request, response, accessDeniedException) ->
-                                                        writeError(
-                                                                response,
-                                                                HttpServletResponse.SC_FORBIDDEN,
-                                                                ErrorCode.ACCESS_DENIED)));
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/api/v1/public/**").permitAll().anyRequest().authenticated())
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .exceptionHandling(
+            ex ->
+                ex.authenticationEntryPoint(
+                        (request, response, authException) ->
+                            writeError(
+                                response,
+                                HttpServletResponse.SC_UNAUTHORIZED,
+                                ErrorCode.TOKEN_INVALID))
+                    .accessDeniedHandler(
+                        (request, response, accessDeniedException) ->
+                            writeError(
+                                response,
+                                HttpServletResponse.SC_FORBIDDEN,
+                                ErrorCode.ACCESS_DENIED)));
 
-        return http.build();
-    }
+    return http.build();
+  }
 
-    private void writeError(HttpServletResponse response, int status, ErrorCode errorCode)
-            throws java.io.IOException {
-        log.warn("Security filter blocked request — {}", errorCode.name());
-        response.setStatus(status);
-        response.setContentType("application/json");
-        ApiErrorResponse body =
-                ApiErrorResponse.builder()
-                        .traceId(MDC.get("traceId"))
-                        .error(
-                                ApiErrorResponse.ErrorDetail.builder()
-                                        .errorCode(errorCode.name())
-                                        .errorMessage(errorCode.getMessage())
-                                        .build())
-                        .timestamp(Instant.now())
-                        .build();
-        objectMapper.writeValue(response.getWriter(), body);
-    }
+  private void writeError(HttpServletResponse response, int status, ErrorCode errorCode)
+      throws java.io.IOException {
+    log.warn("Security filter blocked request — {}", errorCode.name());
+    response.setStatus(status);
+    response.setContentType("application/json");
+    ApiErrorResponse body =
+        ApiErrorResponse.builder()
+            .traceId(MDC.get("traceId"))
+            .error(
+                ApiErrorResponse.ErrorDetail.builder()
+                    .errorCode(errorCode.name())
+                    .errorMessage(errorCode.getMessage())
+                    .build())
+            .timestamp(Instant.now())
+            .build();
+    objectMapper.writeValue(response.getWriter(), body);
+  }
 }

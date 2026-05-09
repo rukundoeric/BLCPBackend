@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class BLCPBackendApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(BLCPBackendApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(BLCPBackendApplication.class, args);
+  }
 }

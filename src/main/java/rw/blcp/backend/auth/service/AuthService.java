@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rw.blcp.backend.auth.dto.LoginRequest;
 import rw.blcp.backend.auth.entity.User;
-import rw.blcp.backend.core.RecordState;
 import rw.blcp.backend.auth.entity.UserSession;
 import rw.blcp.backend.auth.repository.UserRepository;
 import rw.blcp.backend.auth.repository.UserSessionRepository;
+import rw.blcp.backend.core.RecordState;
 import rw.blcp.backend.exception.ApiException;
 import rw.blcp.backend.exception.ErrorCode;
 
@@ -113,10 +113,11 @@ public class AuthService {
     public void logout(String rawRefreshToken) {
         userSessionRepository
                 .findByTokenHash(hash(rawRefreshToken))
-                .ifPresent(session -> {
-                    log.info("User {} logged out", session.getUser().getEmail());
-                    userSessionRepository.deleteAllByUser(session.getUser());
-                });
+                .ifPresent(
+                        session -> {
+                            log.info("User {} logged out", session.getUser().getEmail());
+                            userSessionRepository.deleteAllByUser(session.getUser());
+                        });
     }
 
     private String hash(String raw) {

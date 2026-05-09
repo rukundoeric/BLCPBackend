@@ -25,8 +25,7 @@ public abstract class BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Version
-    private Long version;
+    @Version private Long version;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

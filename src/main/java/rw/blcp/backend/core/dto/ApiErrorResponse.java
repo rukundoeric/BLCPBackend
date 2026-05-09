@@ -28,7 +28,11 @@ public class ApiErrorResponse {
     public static ApiErrorResponse of(String errorCode, String errorMessage) {
         return ApiErrorResponse.builder()
                 .traceId(MDC.get("traceId"))
-                .error(ErrorDetail.builder().errorCode(errorCode).errorMessage(errorMessage).build())
+                .error(
+                        ErrorDetail.builder()
+                                .errorCode(errorCode)
+                                .errorMessage(errorMessage)
+                                .build())
                 .timestamp(Instant.now())
                 .build();
     }

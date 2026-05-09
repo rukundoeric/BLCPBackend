@@ -50,7 +50,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     userRepository
                             .findById(userId)
                             .orElseThrow(
-                                    () -> new ApiException(rw.blcp.backend.exception.ErrorCode.TOKEN_INVALID));
+                                    () ->
+                                            new ApiException(
+                                                    rw.blcp.backend.exception.ErrorCode
+                                                            .TOKEN_INVALID));
 
             if (user.getState() != RecordState.ACTIVE) {
                 filterChain.doFilter(request, response);

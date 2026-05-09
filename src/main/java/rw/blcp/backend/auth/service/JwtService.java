@@ -28,8 +28,7 @@ public class JwtService {
 
     public String generateAccessToken(User user) {
         long now = System.currentTimeMillis();
-        var roles =
-                user.getRoles().stream().map(r -> r.getName().name()).toList();
+        var roles = user.getRoles().stream().map(r -> r.getName().name()).toList();
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("email", user.getEmail())

@@ -45,7 +45,9 @@ public class AuthorizationAspect {
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User user)) {
+        if (auth == null
+                || !auth.isAuthenticated()
+                || !(auth.getPrincipal() instanceof User user)) {
             log.warn("Unauthenticated access attempt on {}", joinPoint.getSignature());
             throw new ApiException(ErrorCode.TOKEN_INVALID);
         }

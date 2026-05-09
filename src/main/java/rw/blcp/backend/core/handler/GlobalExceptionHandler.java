@@ -11,9 +11,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import rw.blcp.backend.core.dto.ApiErrorResponse;
 import rw.blcp.backend.exception.ApiException;
 import rw.blcp.backend.exception.ErrorCode;
-import rw.blcp.backend.core.dto.ApiErrorResponse;
 
 @Slf4j
 @RestControllerAdvice

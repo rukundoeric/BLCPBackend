@@ -9,3 +9,4 @@ BLOCPBackend.iml
 data/
 httpRequestTest
 systemDesign
+.env

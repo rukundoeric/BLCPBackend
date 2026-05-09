@@ -1,4 +1,4 @@
-package rw.blcp.backend.web.dto;
+package rw.blcp.backend.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;

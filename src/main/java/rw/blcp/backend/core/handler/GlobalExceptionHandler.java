@@ -1,5 +1,6 @@
-package rw.blcp.backend.web.handler;
+package rw.blcp.backend.core.handler;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import rw.blcp.backend.exception.ApiException;
 import rw.blcp.backend.exception.ErrorCode;
-import rw.blcp.backend.web.dto.ApiErrorResponse;
+import rw.blcp.backend.core.dto.ApiErrorResponse;
 
 @Slf4j
 @RestControllerAdvice
@@ -27,13 +28,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        String message =
+        Map<String, String> details =
                 ex.getBindingResult().getFieldErrors().stream()
-                        .map(FieldError::getDefaultMessage)
-                        .collect(Collectors.joining(", "));
-        log.warn("Validation failed: {}", message);
+                        .collect(
+                                Collectors.toMap(
+                                        FieldError::getField,
+                                        FieldError::getDefaultMessage,
+                                        (first, second) -> first));
+        log.warn("Validation failed: {}", details);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiErrorResponse.of(ErrorCode.VALIDATION_FAILED.name(), message));
+                .body(
+                        ApiErrorResponse.of(
+                                ErrorCode.VALIDATION_FAILED.name(),
+                                ErrorCode.VALIDATION_FAILED.getMessage(),
+                                details));
     }
 
     @ExceptionHandler(AuthenticationException.class)

@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import rw.blcp.backend.web.dto.ApiResponse;
+import rw.blcp.backend.core.dto.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/public")

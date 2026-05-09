@@ -13,8 +13,11 @@ public class ActionRegistry {
 
     @SuppressWarnings("unchecked")
     public ActionRegistry(List<Action<?>> actions) {
-        this.registry = actions.stream()
-                .collect(Collectors.toMap(Action::getType, action -> (Action<Object>) action));
+        this.registry =
+                actions.stream()
+                        .collect(
+                                Collectors.toMap(
+                                        Action::getType, action -> (Action<Object>) action));
     }
 
     public Action<Object> get(EActionType type) {

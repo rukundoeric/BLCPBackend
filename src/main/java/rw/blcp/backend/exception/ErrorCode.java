@@ -15,6 +15,7 @@ public enum ErrorCode {
     VALIDATION_FAILED("One or more fields failed validation", HttpStatus.BAD_REQUEST),
 
     RESOURCE_NOT_FOUND("The requested resource was not found", HttpStatus.NOT_FOUND),
+    APPLICATION_NOT_FOUND("Application not found", HttpStatus.NOT_FOUND),
     RESOURCE_ALREADY_EXISTS(
             "A resource with the same identifier already exists", HttpStatus.CONFLICT),
 

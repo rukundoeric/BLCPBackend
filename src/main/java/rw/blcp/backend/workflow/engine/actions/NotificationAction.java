@@ -1,11 +1,10 @@
 package rw.blcp.backend.workflow.engine.actions;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import rw.blcp.backend.workflow.enums.EActionType;
 import rw.blcp.backend.workflow.engine.Action;
 import rw.blcp.backend.workflow.engine.records.TransitionContext;
+import rw.blcp.backend.workflow.enums.EActionType;
 
 @Slf4j
 @Component
@@ -16,9 +15,9 @@ public class NotificationAction implements Action<Void> {
         return EActionType.NOTIFICATION;
     }
 
-    @Async
     @Override
     public void execute(TransitionContext ctx, Void args) {
+        /* we can consider triggering actual Email/sms notification later */
         log.info(
                 "[NOTIFICATION] Application {} ('{}') transitioned to {} — notifying {}",
                 ctx.application().getApplicationNumber(),

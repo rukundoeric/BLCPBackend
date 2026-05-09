@@ -1,12 +1,13 @@
 package rw.blcp.backend.workflow.repository;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import rw.blcp.backend.auth.entity.User;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import rw.blcp.backend.workflow.entity.Application;
 
-public interface ApplicationRepository extends JpaRepository<Application, UUID> {
+public interface ApplicationRepository
+        extends JpaRepository<Application, UUID>, JpaSpecificationExecutor<Application> {
 
-    List<Application> findAllByApplicant(User applicant);
+    Optional<Application> findByApplicationNumber(String applicationNumber);
 }

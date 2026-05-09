@@ -1,6 +1,7 @@
 package rw.blcp.backend.workflow.engine;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -60,15 +61,18 @@ public class StateMachineEngine {
 
     private void runNonBreakingActions(TransitionDefinition definition, TransitionContext ctx) {
         for (ActionDefinition action : definition.nonBreakingActions()) {
-            try {
-                actionRegistry.get(action.actionType()).execute(ctx, action.args());
-            } catch (Exception e) {
-                log.warn(
-                        "Non-breaking action {} failed for application {} — {}",
-                        action.actionType(),
-                        ctx.application().getId(),
-                        e.getMessage());
-            }
+            CompletableFuture.runAsync(
+                    () -> {
+                        try {
+                            actionRegistry.get(action.actionType()).execute(ctx, action.args());
+                        } catch (Exception e) {
+                            log.warn(
+                                    "Non-breaking action {} failed for application {} — {}",
+                                    action.actionType(),
+                                    ctx.application().getId(),
+                                    e.getMessage());
+                        }
+                    });
         }
     }
 
@@ -78,14 +82,14 @@ public class StateMachineEngine {
             EApplicationStatus previousStatus,
             EApplicationStatus newStatus,
             TransitionContext ctx) {
-        ApplicationStateTransition record = new ApplicationStateTransition();
-        record.setApplicationNumber(app.getApplicationNumber());
-        record.setApplication(app);
-        record.setEvent(event);
-        record.setInitialState(previousStatus);
-        record.setNewState(newStatus);
-        record.setActor(ctx.actor());
-        transitionRepository.save(record);
+        ApplicationStateTransition applicationStateTransition = new ApplicationStateTransition();
+        applicationStateTransition.setApplicationNumber(app.getApplicationNumber());
+        applicationStateTransition.setApplication(app);
+        applicationStateTransition.setEvent(event);
+        applicationStateTransition.setInitialState(previousStatus);
+        applicationStateTransition.setNewState(newStatus);
+        applicationStateTransition.setActor(ctx.actor());
+        transitionRepository.save(applicationStateTransition);
         log.info(
                 "Transition logged: application={} event={} {} -> {} actor={}",
                 app.getApplicationNumber(),

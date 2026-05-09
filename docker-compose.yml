@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: blcp_postgres
+    environment:
+      POSTGRES_DB: blcp_db
+      POSTGRES_USER: blcp_user
+      POSTGRES_PASSWORD: blcp_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blcp_user -d blcp_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+

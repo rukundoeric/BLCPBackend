@@ -91,9 +91,6 @@ class ApplicationServiceTest {
 
   @Test
   void takeAction_withRejectAndNoComment_throwsValidationFailed() {
-    when(applicationRepository.findByApplicationNumber("APP-2026-0001"))
-        .thenReturn(Optional.of(TestFixtures.submittedApplication()));
-
     assertThatThrownBy(
             () ->
                 applicationService.takeAction(
@@ -107,9 +104,6 @@ class ApplicationServiceTest {
 
   @Test
   void takeAction_withRejectAndBlankComment_throwsValidationFailed() {
-    when(applicationRepository.findByApplicationNumber("APP-2026-0001"))
-        .thenReturn(Optional.of(TestFixtures.submittedApplication()));
-
     assertThatThrownBy(
             () ->
                 applicationService.takeAction(

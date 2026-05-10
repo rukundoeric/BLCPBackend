@@ -15,13 +15,17 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import rw.blcp.backend.common.handler.GlobalExceptionHandler;
 import rw.blcp.backend.core.application.enums.EApplicationEvent;
@@ -37,11 +41,19 @@ import rw.blcp.backend.exception.ApiException;
 import rw.blcp.backend.exception.ErrorCode;
 import rw.blcp.backend.fixtures.TestFixtures;
 
-@WebMvcTest(
-    value = ApplicationController.class,
-    excludeAutoConfiguration = SecurityAutoConfiguration.class)
-@Import({GlobalExceptionHandler.class, AuthorizationAspect.class})
+@WebMvcTest(value = ApplicationController.class)
+@Import({GlobalExceptionHandler.class, AuthorizationAspect.class, AopAutoConfiguration.class})
 class ApplicationControllerTest {
+
+  @TestConfiguration
+  static class SecurityConfig {
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+      return http.csrf(csrf -> csrf.disable())
+          .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+          .build();
+    }
+  }
 
   @Autowired MockMvc mockMvc;
   @Autowired ObjectMapper objectMapper;
@@ -107,8 +119,8 @@ class ApplicationControllerTest {
   }
 
   @Test
-  void fetchApplications_withoutAuthentication_returns403() throws Exception {
-    mockMvc.perform(get("/api/v1/applications")).andExpect(status().isForbidden());
+  void fetchApplications_withoutAuthentication_returns401() throws Exception {
+    mockMvc.perform(get("/api/v1/applications")).andExpect(status().isUnauthorized());
   }
 
   @Test

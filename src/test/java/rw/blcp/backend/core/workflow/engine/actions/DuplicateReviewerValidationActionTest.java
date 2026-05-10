@@ -90,7 +90,7 @@ class DuplicateReviewerValidationActionTest {
   private void setId(User user, UUID id) {
     // BaseEntity has the id field — we need reflection to set it in tests
     try {
-      var field = user.getClass().getSuperclass().getSuperclass().getDeclaredField("id");
+      var field = user.getClass().getSuperclass().getDeclaredField("id");
       field.setAccessible(true);
       field.set(user, id);
     } catch (Exception e) {

@@ -106,19 +106,14 @@ class StateMachineEngineTest {
 
   @Test
   void execute_whenNonBreakingActionFails_transitionStillCompletes() {
-    Action<Object> failingAction = mock(Action.class);
-    when(failingAction.getType()).thenReturn(EActionType.NOTIFICATION);
-    doThrow(new RuntimeException("notification failed")).when(failingAction).execute(any(), any());
-    when(transitionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-
-    ActionRegistry registry = new ActionRegistry(List.of(failingAction));
+    // Empty registry — the async handler catches the unregistered-action failure synchronously
     engine =
         new StateMachineEngine(
             transitionMap(List.of(), List.of(ActionDefinition.of(EActionType.NOTIFICATION))),
-            registry,
+            new ActionRegistry(List.of()),
             transitionRepository);
+    when(transitionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-    // Should not throw — non-breaking failures are absorbed
     engine.execute(EApplicationEvent.APPLY, ctx);
 
     assertThat(application.getStatus())

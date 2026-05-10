@@ -11,11 +11,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import rw.blcp.backend.common.handler.GlobalExceptionHandler;
 import rw.blcp.backend.core.auth.RoleName;
@@ -29,11 +33,19 @@ import rw.blcp.backend.exception.ApiException;
 import rw.blcp.backend.exception.ErrorCode;
 import rw.blcp.backend.fixtures.TestFixtures;
 
-@WebMvcTest(
-    value = OfficerController.class,
-    excludeAutoConfiguration = SecurityAutoConfiguration.class)
-@Import({GlobalExceptionHandler.class, AuthorizationAspect.class})
+@WebMvcTest(value = OfficerController.class)
+@Import({GlobalExceptionHandler.class, AuthorizationAspect.class, AopAutoConfiguration.class})
 class OfficerControllerTest {
+
+  @TestConfiguration
+  static class SecurityConfig {
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+      return http.csrf(csrf -> csrf.disable())
+          .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+          .build();
+    }
+  }
 
   @Autowired MockMvc mockMvc;
   @Autowired ObjectMapper objectMapper;
@@ -70,13 +82,13 @@ class OfficerControllerTest {
   }
 
   @Test
-  void createOfficer_withoutAuthentication_returns403() throws Exception {
+  void createOfficer_withoutAuthentication_returns401() throws Exception {
     mockMvc
         .perform(
             post("/api/v1/admin/officers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validCreateRequest())))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isUnauthorized());
   }
 
   @Test

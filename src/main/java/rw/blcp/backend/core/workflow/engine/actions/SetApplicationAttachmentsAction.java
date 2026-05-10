@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import rw.blcp.backend.core.application.entity.ApplicationAttachment;
 import rw.blcp.backend.core.application.entity.Attachment;
 import rw.blcp.backend.core.application.repository.ApplicationAttachmentRepository;
+import rw.blcp.backend.core.application.repository.AttachmentRepository;
 import rw.blcp.backend.core.workflow.engine.Action;
 import rw.blcp.backend.core.workflow.engine.records.AttachmentUpload;
 import rw.blcp.backend.core.workflow.engine.records.TransitionContext;
@@ -21,7 +22,7 @@ public class SetApplicationAttachmentsAction implements Action<Void> {
 
   private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-  private final ApplicationAttachmentRepository.AttachmentRepository attachmentRepository;
+  private final AttachmentRepository attachmentRepository;
   private final ApplicationAttachmentRepository applicationAttachmentRepository;
 
   @Override

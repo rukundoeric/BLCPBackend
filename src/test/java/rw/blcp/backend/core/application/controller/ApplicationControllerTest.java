@@ -155,14 +155,17 @@ class ApplicationControllerTest {
   }
 
   @Test
-  void fetchApplications_asApplicant_returns403() throws Exception {
+  void fetchApplications_asApplicant_returns200() throws Exception {
     var applicant = TestFixtures.userWithRoles(RoleName.APPLICANT);
+    when(applicationService.fetchApplications(any(), any(), any()))
+        .thenReturn(new PageImpl<>(List.of(stubResponse())));
 
     mockMvc
         .perform(
             get("/api/v1/applications")
                 .with(authentication(TestFixtures.authenticationFor(applicant))))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.content").isArray());
   }
 
   @Test

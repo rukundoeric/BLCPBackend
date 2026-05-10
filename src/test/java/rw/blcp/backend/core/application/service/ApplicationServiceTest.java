@@ -42,7 +42,6 @@ class ApplicationServiceTest {
     actor.setFirstName("Actor");
     actor.setLastName("Name");
     when(applicationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-    when(applicationRepository.count()).thenReturn(0L);
 
     CreateApplicationRequest request =
         new CreateApplicationRequest(
@@ -59,7 +58,6 @@ class ApplicationServiceTest {
   @Test
   void create_firesApplyEventOnTheStateMachine() {
     when(applicationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-    when(applicationRepository.count()).thenReturn(0L);
 
     CreateApplicationRequest request =
         new CreateApplicationRequest(

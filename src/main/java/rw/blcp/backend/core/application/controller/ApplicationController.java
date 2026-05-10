@@ -58,7 +58,7 @@ public class ApplicationController {
   }
 
   @GetMapping("/api/v1/applications")
-  @RequiredRoles({RoleName.OFFICER, RoleName.SENIOR_OFFICER})
+  @RequiredRoles({RoleName.OFFICER, RoleName.SENIOR_OFFICER, RoleName.APPLICANT})
   public ResponseEntity<ApiResponse<Page<ApplicationResponse>>> fetchApplications(
       @ModelAttribute ApplicationFilter filter,
       @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)

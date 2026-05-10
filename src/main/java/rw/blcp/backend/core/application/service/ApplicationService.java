@@ -1,6 +1,7 @@
 package rw.blcp.backend.core.application.service;
 
-import java.time.Year;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -128,9 +129,25 @@ public class ApplicationService {
     return uploads;
   }
 
+  private static final String RANDOM_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  private static final SecureRandom RANDOM = new SecureRandom();
+
   private String generateApplicationNumber() {
-    long count = applicationRepository.count() + 1;
-    return String.format("APP-%d-%04d", Year.now().getValue(), count);
+    LocalDateTime now = LocalDateTime.now();
+    String timestamp =
+        String.format(
+            "B%02d%02d%02d%02d%02d%02d",
+            now.getYear() % 100,
+            now.getMonthValue(),
+            now.getDayOfMonth(),
+            now.getHour(),
+            now.getMinute(),
+            now.getSecond());
+    StringBuilder suffix = new StringBuilder(4);
+    for (int i = 0; i < 4; i++) {
+      suffix.append(RANDOM_CHARS.charAt(RANDOM.nextInt(RANDOM_CHARS.length())));
+    }
+    return timestamp + suffix;
   }
 
   private ApplicationResponse toResponse(Application app) {

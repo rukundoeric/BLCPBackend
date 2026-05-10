@@ -60,17 +60,41 @@ class ApplicationControllerTest {
   @MockBean ApplicationService applicationService;
 
   @Test
-  void createApplication_withValidRequest_returns201() throws Exception {
+  void createApplication_asApplicant_withValidRequest_returns201() throws Exception {
+    var applicant = TestFixtures.userWithRoles(RoleName.APPLICANT);
     when(applicationService.create(any(), any(), any())).thenReturn(stubResponse());
 
     mockMvc
-        .perform(multipart("/api/v1/public/applications").file(validDataPart()))
+        .perform(
+            multipart("/api/v1/applications")
+                .file(validDataPart())
+                .with(authentication(TestFixtures.authenticationFor(applicant))))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.data.applicationNumber").value("APP-2026-0001"));
   }
 
   @Test
+  void createApplication_withoutAuthentication_returns401() throws Exception {
+    mockMvc
+        .perform(multipart("/api/v1/applications").file(validDataPart()))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void createApplication_asOfficer_returns403() throws Exception {
+    var officer = TestFixtures.userWithRoles(RoleName.OFFICER);
+
+    mockMvc
+        .perform(
+            multipart("/api/v1/applications")
+                .file(validDataPart())
+                .with(authentication(TestFixtures.authenticationFor(officer))))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
   void createApplication_withMissingBankName_returns400() throws Exception {
+    var applicant = TestFixtures.userWithRoles(RoleName.APPLICANT);
     CreateApplicationRequest invalid =
         new CreateApplicationRequest(
             "jane@example.com", "Jane", "Doe", null, "COMMERCIAL", null, null);
@@ -82,13 +106,17 @@ class ApplicationControllerTest {
             objectMapper.writeValueAsBytes(invalid));
 
     mockMvc
-        .perform(multipart("/api/v1/public/applications").file(part))
+        .perform(
+            multipart("/api/v1/applications")
+                .file(part)
+                .with(authentication(TestFixtures.authenticationFor(applicant))))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.error.errorCode").value("VALIDATION_FAILED"));
   }
 
   @Test
   void createApplication_withInvalidEmail_returns400() throws Exception {
+    var applicant = TestFixtures.userWithRoles(RoleName.APPLICANT);
     CreateApplicationRequest invalid =
         new CreateApplicationRequest(
             "not-an-email", "Jane", "Doe", "Sunrise Bank", "COMMERCIAL", null, null);
@@ -100,7 +128,10 @@ class ApplicationControllerTest {
             objectMapper.writeValueAsBytes(invalid));
 
     mockMvc
-        .perform(multipart("/api/v1/public/applications").file(part))
+        .perform(
+            multipart("/api/v1/applications")
+                .file(part)
+                .with(authentication(TestFixtures.authenticationFor(applicant))))
         .andExpect(status().isBadRequest());
   }
 
@@ -166,6 +197,29 @@ class ApplicationControllerTest {
                         new TakeActionRequest(EApplicationEvent.APPROVE, null))))
         .andExpect(status().isUnprocessableEntity())
         .andExpect(jsonPath("$.error.errorCode").value("INVALID_STATE_TRANSITION"));
+  }
+
+  @Test
+  void resubmit_asApplicant_returns200() throws Exception {
+    var applicant = TestFixtures.userWithRoles(RoleName.APPLICANT);
+    when(applicationService.resubmit(any(), any(), any())).thenReturn(stubResponse());
+
+    mockMvc
+        .perform(
+            multipart("/api/v1/applications/APP-2026-0001/resubmit")
+                .with(authentication(TestFixtures.authenticationFor(applicant))))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void resubmit_asOfficer_returns403() throws Exception {
+    var officer = TestFixtures.userWithRoles(RoleName.OFFICER);
+
+    mockMvc
+        .perform(
+            multipart("/api/v1/applications/APP-2026-0001/resubmit")
+                .with(authentication(TestFixtures.authenticationFor(officer))))
+        .andExpect(status().isForbidden());
   }
 
   private MockMultipartFile validDataPart() throws Exception {

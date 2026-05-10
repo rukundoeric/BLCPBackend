@@ -40,11 +40,9 @@ public class ApplicationService {
     Application application = new Application();
     application.setApplicationNumber(generateApplicationNumber());
     application.setApplicant(actor);
-    application.setApplicantEmail(actor != null ? actor.getEmail() : request.applicantEmail());
-    application.setApplicantFirstName(
-        actor != null ? actor.getFirstName() : request.applicantFirstName());
-    application.setApplicantLastName(
-        actor != null ? actor.getLastName() : request.applicantLastName());
+    application.setApplicantEmail(actor.getEmail());
+    application.setApplicantFirstName(actor.getFirstName());
+    application.setApplicantLastName(actor.getLastName());
     application.setBankName(request.bankName());
     application.setBankType(request.bankType());
     application.setNotes(request.notes());
@@ -59,7 +57,24 @@ public class ApplicationService {
     log.info(
         "Application {} created and submitted by {}",
         application.getApplicationNumber(),
-        actor != null ? actor.getEmail() : "guest");
+        actor.getEmail());
+
+    return toResponse(application);
+  }
+
+  @Transactional
+  public ApplicationResponse resubmit(
+      String applicationNumber, List<MultipartFile> files, User actor) {
+    Application application =
+        applicationRepository
+            .findByApplicationNumber(applicationNumber)
+            .orElseThrow(() -> new ApiException(ErrorCode.APPLICATION_NOT_FOUND));
+
+    stateMachineEngine.execute(
+        EApplicationEvent.RESUBMIT,
+        new TransitionContext(application, actor, null, buildUploads(files, List.of())));
+
+    log.info("Application {} resubmitted by {}", applicationNumber, actor.getEmail());
 
     return toResponse(application);
   }
@@ -67,10 +82,10 @@ public class ApplicationService {
   @Transactional
   public ApplicationResponse takeAction(
       String applicationNumber, TakeActionRequest request, User actor) {
-    if (request.event() == EApplicationEvent.REJECT
+    if ((request.event() == EApplicationEvent.REJECT
+            || request.event() == EApplicationEvent.REQUEST_FOR_ACTION)
         && (request.comment() == null || request.comment().isBlank())) {
-      throw new ApiException(
-          ErrorCode.VALIDATION_FAILED, "Comment is required when rejecting an application");
+      throw new ApiException(ErrorCode.VALIDATION_FAILED, "Comment is required for this action");
     }
 
     Application application =

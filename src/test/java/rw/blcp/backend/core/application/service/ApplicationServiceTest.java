@@ -36,7 +36,7 @@ class ApplicationServiceTest {
   @InjectMocks ApplicationService applicationService;
 
   @Test
-  void create_withAuthenticatedUser_usesUserProfileOverRequestFields() {
+  void create_usesAuthenticatedUserProfileOverRequestFields() {
     var actor = TestFixtures.userWithRoles(RoleName.APPLICANT);
     actor.setEmail("actor@example.com");
     actor.setFirstName("Actor");
@@ -57,23 +57,6 @@ class ApplicationServiceTest {
   }
 
   @Test
-  void create_withGuestUser_usesRequestFields() {
-    when(applicationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-    when(applicationRepository.count()).thenReturn(0L);
-
-    CreateApplicationRequest request =
-        new CreateApplicationRequest(
-            "guest@example.com", "Guest", "Applicant", "Guest Bank", "COMMERCIAL", null, null);
-
-    applicationService.create(request, List.of(), null);
-
-    ArgumentCaptor<Application> captor = forClass(Application.class);
-    verify(applicationRepository).save(captor.capture());
-    assertThat(captor.getValue().getApplicantEmail()).isEqualTo("guest@example.com");
-    assertThat(captor.getValue().getApplicantFirstName()).isEqualTo("Guest");
-  }
-
-  @Test
   void create_firesApplyEventOnTheStateMachine() {
     when(applicationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
     when(applicationRepository.count()).thenReturn(0L);
@@ -82,11 +65,38 @@ class ApplicationServiceTest {
         new CreateApplicationRequest(
             "jane@example.com", "Jane", "Doe", "Sunrise Bank", "COMMERCIAL", null, null);
 
-    applicationService.create(request, List.of(), null);
+    applicationService.create(request, List.of(), TestFixtures.userWithRoles(RoleName.APPLICANT));
 
     ArgumentCaptor<TransitionContext> ctxCaptor = forClass(TransitionContext.class);
     verify(stateMachineEngine).execute(eq(EApplicationEvent.APPLY), ctxCaptor.capture());
     assertThat(ctxCaptor.getValue().application().getBankName()).isEqualTo("Sunrise Bank");
+  }
+
+  @Test
+  void resubmit_delegatesToEngineWithResubmitEvent() {
+    var actor = TestFixtures.userWithRoles(RoleName.APPLICANT);
+    var application = TestFixtures.pendingResubmissionApplication();
+    when(applicationRepository.findByApplicationNumber("APP-2026-0001"))
+        .thenReturn(Optional.of(application));
+
+    applicationService.resubmit("APP-2026-0001", List.of(), actor);
+
+    ArgumentCaptor<TransitionContext> ctxCaptor = forClass(TransitionContext.class);
+    verify(stateMachineEngine).execute(eq(EApplicationEvent.RESUBMIT), ctxCaptor.capture());
+    assertThat(ctxCaptor.getValue().actor()).isEqualTo(actor);
+  }
+
+  @Test
+  void resubmit_withUnknownApplicationNumber_throwsApplicationNotFound() {
+    when(applicationRepository.findByApplicationNumber(any())).thenReturn(Optional.empty());
+
+    assertThatThrownBy(
+            () ->
+                applicationService.resubmit(
+                    "APP-0000-9999", List.of(), TestFixtures.userWithRoles(RoleName.APPLICANT)))
+        .isInstanceOf(ApiException.class)
+        .extracting(e -> ((ApiException) e).getErrorCode())
+        .isEqualTo(ErrorCode.APPLICATION_NOT_FOUND);
   }
 
   @Test
@@ -109,6 +119,19 @@ class ApplicationServiceTest {
                 applicationService.takeAction(
                     "APP-2026-0001",
                     new TakeActionRequest(EApplicationEvent.REJECT, "   "),
+                    TestFixtures.userWithRoles(RoleName.OFFICER)))
+        .isInstanceOf(ApiException.class)
+        .extracting(e -> ((ApiException) e).getErrorCode())
+        .isEqualTo(ErrorCode.VALIDATION_FAILED);
+  }
+
+  @Test
+  void takeAction_withRequestForActionAndNoComment_throwsValidationFailed() {
+    assertThatThrownBy(
+            () ->
+                applicationService.takeAction(
+                    "APP-2026-0001",
+                    new TakeActionRequest(EApplicationEvent.REQUEST_FOR_ACTION, null),
                     TestFixtures.userWithRoles(RoleName.OFFICER)))
         .isInstanceOf(ApiException.class)
         .extracting(e -> ((ApiException) e).getErrorCode())

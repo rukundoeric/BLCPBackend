@@ -11,17 +11,19 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Immutable;
 import rw.blcp.backend.common.entity.BaseEntity;
 import rw.blcp.backend.core.application.enums.EApplicationEvent;
 import rw.blcp.backend.core.application.enums.EApplicationStatus;
 import rw.blcp.backend.core.auth.entity.User;
 
 @Entity
-@Table(name = "application_state_transitions")
+@Immutable
+@Table(name = "audit_log")
 @Getter
 @Setter
 @NoArgsConstructor
-public class ApplicationStateTransition extends BaseEntity {
+public class AuditLog extends BaseEntity {
 
   @Column(name = "application_number", nullable = false)
   private String applicationNumber;
@@ -45,4 +47,7 @@ public class ApplicationStateTransition extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "actor_id")
   private User actor;
+
+  @Column(columnDefinition = "TEXT")
+  private String comment;
 }

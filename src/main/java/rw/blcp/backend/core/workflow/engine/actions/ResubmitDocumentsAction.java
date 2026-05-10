@@ -18,21 +18,20 @@ import rw.blcp.backend.exception.ErrorCode;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SetApplicationAttachmentsAction implements Action<Void> {
+public class ResubmitDocumentsAction implements Action<Void> {
 
-  private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
   private final AttachmentRepository attachmentRepository;
   private final ApplicationAttachmentRepository applicationAttachmentRepository;
 
   @Override
   public EActionType getType() {
-    return EActionType.SET_APPLICATION_ATTACHMENTS;
+    return EActionType.RESUBMIT_DOCUMENTS;
   }
 
   @Override
   public void execute(TransitionContext ctx, Void args) {
-    /* In a production level code, where I need to actually upload the document, I would consider adding a virus scanner here: */
     List<AttachmentUpload> uploads = ctx.attachments();
     if (uploads == null || uploads.isEmpty()) {
       return;
@@ -45,6 +44,13 @@ public class SetApplicationAttachmentsAction implements Action<Void> {
             upload.file().getOriginalFilename() + " exceeds the 5MB limit");
       }
     }
+
+    // Previous documents are never deleted — new docs get the next version number.
+    int nextVersion =
+        applicationAttachmentRepository
+                .findMaxSubmissionVersionByApplication(ctx.application())
+                .orElse(0)
+            + 1;
 
     for (AttachmentUpload upload : uploads) {
       Attachment attachment = new Attachment();
@@ -59,13 +65,14 @@ public class SetApplicationAttachmentsAction implements Action<Void> {
       applicationAttachment.setApplication(ctx.application());
       applicationAttachment.setAttachment(attachment);
       applicationAttachment.setDocumentType(upload.documentType());
-      applicationAttachment.setSubmissionVersion(1);
+      applicationAttachment.setSubmissionVersion(nextVersion);
       applicationAttachmentRepository.save(applicationAttachment);
     }
 
     log.info(
-        "Saved {} attachment(s) for application {}",
+        "Saved {} resubmitted attachment(s) (version {}) for application {}",
         uploads.size(),
+        nextVersion,
         ctx.application().getApplicationNumber());
   }
 }

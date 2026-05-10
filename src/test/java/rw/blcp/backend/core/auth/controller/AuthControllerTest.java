@@ -46,7 +46,8 @@ class AuthControllerTest {
         .perform(
             post("/api/v1/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new LoginRequest("user@test.com", "pass"))))
+                .content(
+                    objectMapper.writeValueAsString(new LoginRequest("user@test.com", "pass"))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.accessToken").value("access-jwt"))
         .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("refreshToken=")));
@@ -69,8 +70,7 @@ class AuthControllerTest {
         .perform(
             post("/api/v1/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(new LoginRequest("not-an-email", "pass"))))
+                .content(objectMapper.writeValueAsString(new LoginRequest("not-an-email", "pass"))))
         .andExpect(status().isBadRequest());
   }
 
@@ -116,8 +116,7 @@ class AuthControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/public/auth/refresh")
-                .cookie(new Cookie("refreshToken", "reused-token")))
+            post("/api/v1/public/auth/refresh").cookie(new Cookie("refreshToken", "reused-token")))
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.error.errorCode").value("TOKEN_INVALID"));
   }
@@ -128,12 +127,10 @@ class AuthControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/public/auth/refresh")
-                .cookie(new Cookie("refreshToken", "expired-token")))
+            post("/api/v1/public/auth/refresh").cookie(new Cookie("refreshToken", "expired-token")))
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.error.errorCode").value("TOKEN_EXPIRED"));
   }
-
 
   @Test
   void logout_withRefreshCookie_returns200AndClearsTheCookie() throws Exception {

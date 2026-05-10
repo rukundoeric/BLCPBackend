@@ -35,15 +35,26 @@ public class ApplicationController {
 
   private final ApplicationService applicationService;
 
-  @PostMapping(
-      value = "/api/v1/public/applications",
-      consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/api/v1/applications", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @RequiredRoles(RoleName.APPLICANT)
   public ResponseEntity<ApiResponse<ApplicationResponse>> create(
       @RequestPart("data") @Valid CreateApplicationRequest request,
       @RequestPart(value = "files", required = false) List<MultipartFile> files,
       @AuthenticationPrincipal User currentUser) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.of(applicationService.create(request, files, currentUser)));
+  }
+
+  @PostMapping(
+      value = "/api/v1/applications/{applicationNumber}/resubmit",
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @RequiredRoles(RoleName.APPLICANT)
+  public ResponseEntity<ApiResponse<ApplicationResponse>> resubmit(
+      @PathVariable String applicationNumber,
+      @RequestPart(value = "files", required = false) List<MultipartFile> files,
+      @AuthenticationPrincipal User currentUser) {
+    return ResponseEntity.ok(
+        ApiResponse.of(applicationService.resubmit(applicationNumber, files, currentUser)));
   }
 
   @GetMapping("/api/v1/applications")

@@ -56,6 +56,19 @@ public class TestFixtures {
     return app;
   }
 
+  public static Application pendingResubmissionApplication() {
+    Application app = new Application();
+    app.setApplicationNumber("APP-2026-0001");
+    app.setApplicantEmail("jane@example.com");
+    app.setApplicantFirstName("Jane");
+    app.setApplicantLastName("Doe");
+    app.setBankName("Sunrise Bank");
+    app.setBankType("COMMERCIAL");
+    app.setStatus(EApplicationStatus.PENDING_RESUBMISSION);
+    app.setProcessingLevel(EOfficerLevel.LEVEL_1);
+    return app;
+  }
+
   public static Authentication authenticationFor(User user) {
     var authorities =
         user.getRoles().stream()

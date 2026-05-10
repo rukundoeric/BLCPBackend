@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import rw.blcp.backend.core.application.entity.Application;
-import rw.blcp.backend.core.application.entity.ApplicationStateTransition;
+import rw.blcp.backend.core.application.entity.AuditLog;
 import rw.blcp.backend.core.application.enums.EApplicationEvent;
 import rw.blcp.backend.core.application.enums.EApplicationStatus;
-import rw.blcp.backend.core.application.repository.ApplicationStateTransitionRepository;
+import rw.blcp.backend.core.application.repository.AuditLogRepository;
 import rw.blcp.backend.core.workflow.config.records.ActionDefinition;
 import rw.blcp.backend.core.workflow.config.records.TransitionDefinition;
 import rw.blcp.backend.core.workflow.config.records.TransitionKey;
@@ -24,7 +24,7 @@ public class StateMachineEngine {
 
   private final Map<TransitionKey, TransitionDefinition> stateMachineTransitions;
   private final ActionRegistry actionRegistry;
-  private final ApplicationStateTransitionRepository transitionRepository;
+  private final AuditLogRepository transitionRepository;
 
   public void execute(EApplicationEvent event, TransitionContext ctx) {
     Application app = ctx.application();
@@ -82,14 +82,15 @@ public class StateMachineEngine {
       EApplicationStatus previousStatus,
       EApplicationStatus newStatus,
       TransitionContext ctx) {
-    ApplicationStateTransition applicationStateTransition = new ApplicationStateTransition();
-    applicationStateTransition.setApplicationNumber(app.getApplicationNumber());
-    applicationStateTransition.setApplication(app);
-    applicationStateTransition.setEvent(event);
-    applicationStateTransition.setInitialState(previousStatus);
-    applicationStateTransition.setNewState(newStatus);
-    applicationStateTransition.setActor(ctx.actor());
-    transitionRepository.save(applicationStateTransition);
+    AuditLog entry = new AuditLog();
+    entry.setApplicationNumber(app.getApplicationNumber());
+    entry.setApplication(app);
+    entry.setEvent(event);
+    entry.setInitialState(previousStatus);
+    entry.setNewState(newStatus);
+    entry.setActor(ctx.actor());
+    entry.setComment(ctx.comment());
+    transitionRepository.save(entry);
     log.info(
         "Transition logged: application={} event={} {} -> {} actor={}",
         app.getApplicationNumber(),

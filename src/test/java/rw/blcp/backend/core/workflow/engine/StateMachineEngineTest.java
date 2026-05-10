@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import rw.blcp.backend.core.application.entity.Application;
 import rw.blcp.backend.core.application.enums.EApplicationEvent;
 import rw.blcp.backend.core.application.enums.EApplicationStatus;
-import rw.blcp.backend.core.application.repository.ApplicationStateTransitionRepository;
+import rw.blcp.backend.core.application.repository.AuditLogRepository;
 import rw.blcp.backend.core.officer.enums.EOfficerLevel;
 import rw.blcp.backend.core.workflow.config.records.ActionDefinition;
 import rw.blcp.backend.core.workflow.config.records.TransitionDefinition;
@@ -32,7 +32,7 @@ import rw.blcp.backend.fixtures.TestFixtures;
 @ExtendWith(MockitoExtension.class)
 class StateMachineEngineTest {
 
-  @Mock ApplicationStateTransitionRepository transitionRepository;
+  @Mock AuditLogRepository transitionRepository;
 
   private StateMachineEngine engine;
   private Application application;

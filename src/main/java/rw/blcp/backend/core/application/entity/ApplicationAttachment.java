@@ -32,4 +32,7 @@ public class ApplicationAttachment extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "document_type", nullable = false)
   private EDocumentType documentType;
+
+  @Column(name = "submission_version", nullable = false)
+  private int submissionVersion = 1;
 }

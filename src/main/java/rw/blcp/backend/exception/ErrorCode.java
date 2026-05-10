@@ -16,8 +16,12 @@ public enum ErrorCode {
 
   RESOURCE_NOT_FOUND("The requested resource was not found", HttpStatus.NOT_FOUND),
   APPLICATION_NOT_FOUND("Application not found", HttpStatus.NOT_FOUND),
+  USER_NOT_FOUND("User not found", HttpStatus.NOT_FOUND),
   RESOURCE_ALREADY_EXISTS(
       "A resource with the same identifier already exists", HttpStatus.CONFLICT),
+  EMAIL_ALREADY_IN_USE("A user with this email address already exists", HttpStatus.CONFLICT),
+  OFFICER_ALREADY_EXISTS(
+      "This user is already registered as an officer at the specified level", HttpStatus.CONFLICT),
 
   INVALID_STATE_TRANSITION(
       "This action is not allowed in the current application state",

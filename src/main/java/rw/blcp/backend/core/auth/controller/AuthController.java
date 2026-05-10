@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,9 @@ import rw.blcp.backend.exception.ErrorCode;
 public class AuthController {
 
   private final AuthService authService;
+
+  @Value("${app.cookie.secure:true}")
+  private boolean cookieSecure;
 
   @PostMapping("/login")
   public ResponseEntity<ApiResponse<LoginResponse>> login(
@@ -74,7 +78,7 @@ public class AuthController {
     ResponseCookie cookie =
         ResponseCookie.from("refreshToken", token)
             .httpOnly(true)
-            .secure(true)
+            .secure(cookieSecure)
             .sameSite("Strict")
             .path("/api/v1/public/auth/refresh")
             .maxAge(Duration.ofHours(8))
@@ -86,7 +90,7 @@ public class AuthController {
     ResponseCookie cookie =
         ResponseCookie.from("refreshToken", "")
             .httpOnly(true)
-            .secure(true)
+            .secure(cookieSecure)
             .sameSite("Strict")
             .path("/api/v1/public/auth/refresh")
             .maxAge(Duration.ZERO)

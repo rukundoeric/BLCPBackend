@@ -1,0 +1,16 @@
+package rw.blcp.backend.core.application.repository;
+
+import java.util.List;
+import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import rw.blcp.backend.core.application.entity.Application;
+import rw.blcp.backend.core.application.entity.ApplicationAttachment;
+import rw.blcp.backend.core.application.entity.Attachment;
+
+public interface ApplicationAttachmentRepository
+    extends JpaRepository<ApplicationAttachment, UUID> {
+
+  List<ApplicationAttachment> findByApplication(Application application);
+
+  interface AttachmentRepository extends JpaRepository<Attachment, UUID> {}
+}

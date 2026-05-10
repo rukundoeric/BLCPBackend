@@ -14,8 +14,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import rw.blcp.backend.auth.filter.JwtAuthFilter;
-import rw.blcp.backend.core.dto.ApiErrorResponse;
+import rw.blcp.backend.common.dto.ApiErrorResponse;
+import rw.blcp.backend.core.auth.filter.JwtAuthFilter;
 import rw.blcp.backend.exception.ErrorCode;
 
 @Slf4j

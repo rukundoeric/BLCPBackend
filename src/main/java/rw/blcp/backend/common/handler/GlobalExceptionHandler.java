@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
@@ -58,6 +59,17 @@ public class GlobalExceptionHandler {
         .body(
             ApiErrorResponse.of(
                 ErrorCode.ACCESS_DENIED.name(), ErrorCode.ACCESS_DENIED.getMessage()));
+  }
+
+  @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+  public ResponseEntity<ApiErrorResponse> handleOptimisticLock(
+      ObjectOptimisticLockingFailureException ex) {
+    log.warn("Optimistic lock conflict on {}: {}", ex.getPersistentClassName(), ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(
+            ApiErrorResponse.of(
+                ErrorCode.CONCURRENT_MODIFICATION.name(),
+                ErrorCode.CONCURRENT_MODIFICATION.getMessage()));
   }
 
   @ExceptionHandler(Exception.class)

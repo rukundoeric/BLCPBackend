@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import rw.blcp.backend.common.dto.ApiResponse;
 import rw.blcp.backend.core.auth.dto.LoginRequest;
 import rw.blcp.backend.core.auth.dto.LoginResponse;
+import rw.blcp.backend.core.auth.entity.User;
 import rw.blcp.backend.core.auth.service.AuthService;
 import rw.blcp.backend.exception.ApiException;
 import rw.blcp.backend.exception.ErrorCode;
@@ -67,6 +70,11 @@ public class AuthController {
 
     if (rawRefreshToken != null) {
       authService.logout(rawRefreshToken);
+    } else {
+      Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+      if (auth != null && auth.getPrincipal() instanceof User user) {
+        authService.logoutByUser(user);
+      }
     }
 
     clearRefreshTokenCookie(response);
@@ -80,7 +88,7 @@ public class AuthController {
             .httpOnly(true)
             .secure(cookieSecure)
             .sameSite("Strict")
-            .path("/api/v1/public/auth/refresh")
+            .path("/api/v1/public/auth")
             .maxAge(Duration.ofHours(8))
             .build();
     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -92,7 +100,7 @@ public class AuthController {
             .httpOnly(true)
             .secure(cookieSecure)
             .sameSite("Strict")
-            .path("/api/v1/public/auth/refresh")
+            .path("/api/v1/public/auth")
             .maxAge(Duration.ZERO)
             .build();
     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

@@ -120,6 +120,12 @@ public class AuthService {
             });
   }
 
+  @Transactional
+  public void logoutByUser(User user) {
+    log.info("User {} logged out (via access token)", user.getEmail());
+    userSessionRepository.deleteAllByUser(user);
+  }
+
   private String hash(String raw) {
     try {
       MessageDigest digest = MessageDigest.getInstance("SHA-256");

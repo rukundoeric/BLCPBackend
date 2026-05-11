@@ -11,4 +11,6 @@ public interface UserSessionRepository extends JpaRepository<UserSession, UUID> 
   Optional<UserSession> findByTokenHash(String tokenHash);
 
   void deleteAllByUser(User user);
+
+  boolean existsByUser(User user);
 }

@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import rw.blcp.backend.common.RecordState;
 import rw.blcp.backend.core.auth.entity.User;
 import rw.blcp.backend.core.auth.repository.UserRepository;
+import rw.blcp.backend.core.auth.repository.UserSessionRepository;
 import rw.blcp.backend.core.auth.service.JwtService;
 import rw.blcp.backend.exception.ApiException;
 import rw.blcp.backend.exception.ErrorCode;
@@ -28,6 +29,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
   private final UserRepository userRepository;
+  private final UserSessionRepository userSessionRepository;
 
   @Override
   protected void doFilterInternal(
@@ -53,6 +55,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                   () -> new ApiException(rw.blcp.backend.exception.ErrorCode.TOKEN_INVALID));
 
       if (user.getState() != RecordState.ACTIVE) {
+        filterChain.doFilter(request, response);
+        return;
+      }
+
+      if (!userSessionRepository.existsByUser(user)) {
+        log.debug("No active sessions for user {} — treating token as logged out", userId);
         filterChain.doFilter(request, response);
         return;
       }

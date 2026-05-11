@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import rw.blcp.backend.core.auth.filter.JwtAuthFilter;
 import rw.blcp.backend.core.auth.repository.UserRepository;
+import rw.blcp.backend.core.auth.repository.UserSessionRepository;
 import rw.blcp.backend.core.auth.service.JwtService;
 
 @EnableAsync
@@ -20,8 +21,8 @@ public class AppConfig {
   }
 
   @Bean
-  public JwtAuthFilter jwtAuthFilter(JwtService jwtService, UserRepository userRepository) {
-    return new JwtAuthFilter(jwtService, userRepository);
+  public JwtAuthFilter jwtAuthFilter(JwtService jwtService, UserRepository userRepository, UserSessionRepository userSessionRepository) {
+    return new JwtAuthFilter(jwtService, userRepository, userSessionRepository);
   }
 
   @Bean

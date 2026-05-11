@@ -6,10 +6,14 @@ National Bank of Rwanda (NBR)
 ---
 
 ## C4 Model: Level 1 - System Context
+All the Diagrams in this document can be found here: https://drive.google.com/file/d/1hrOhcGSnsRtvs9clyVydx5Xw2trnLvLx/view?usp=sharing
 
 ### What the system is
-
 BLCP is bank licensing applications. Banks submit applications, NBR officers review them, and administrators manage officer accounts.
+
+<img width="885" height="548" alt="Screenshot 2026-05-11 at 12 36 45" src="https://github.com/user-attachments/assets/9e824813-6e87-46b8-96bc-406763e4e647" />
+
+
 
 ---
 
@@ -105,6 +109,8 @@ The requirements did not define roles explicitly, so I derived them from what th
 
 The system is made up of three containers. The Angular SPA runs in the user's browser, the Spring Boot API handles all business logic, and PostgreSQL stores all data. 
 
+<img width="1010" height="577" alt="Screenshot 2026-05-11 at 12 37 08" src="https://github.com/user-attachments/assets/6abf6f14-ce58-42f7-aa80-3ac0d43ec56b" />
+
 ---
 
 ### Containers
@@ -123,6 +129,10 @@ The backend application. All business logic lives here.
 The only data store in the system.
 
 ---
+
+And all components communicate as follows:
+<img width="881" height="627" alt="Screenshot 2026-05-11 at 12 37 27" src="https://github.com/user-attachments/assets/c0d14233-df21-4054-86ed-71f6d1674921" />
+
 
 ### What is not here yet
 
@@ -147,6 +157,8 @@ When the access token expires, the client calls `POST /api/v1/public/auth/refres
 
 ### Token flow
 
+<img width="665" height="694" alt="Screenshot 2026-05-11 at 12 38 15" src="https://github.com/user-attachments/assets/9af74aa0-4db9-44f7-92ca-bfb6d5b0b4d0" />
+
 ---
 
 ### What it protects against
@@ -155,7 +167,6 @@ When the access token expires, the client calls `POST /api/v1/public/auth/refres
 |---|---|
 | XSS token theft | Refresh token is HttpOnly; JS cannot read it. Access token is short-lived (5 min). |
 | CSRF on refresh | SameSite=Strict prevents the cookie from being sent on cross-origin requests. |
-| Stolen access token used after logout | Session existence check in the filter (step 5 above) blocks it. |
 | Refresh token replay | The `used` flag detects a second use. On detection, all sessions for that user are deleted and they are forced to re-authenticate. |
 | Stale role or deactivated account | User row is loaded from the database on every request (step 3), so any state change takes effect immediately. |
 
@@ -167,7 +178,7 @@ When the access token expires, the client calls `POST /api/v1/public/auth/refres
 |---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Statefulness**          | The refresh layer is stateful, the server holds session rows. This is a deliberate trade-off for revocation capability. The access layer remains stateless (no DB hit per API call beyond the user-load in the filter). |
 | **DB load**               | Each authenticated request loads the User row (filter) and each refresh rotates a session row. Acceptable at this scale.                                                                                                |
-| **Depenency on Browsers** | Http cookies are managed by browsers alone. this coulf be an issue there is a browsers that doesn't manage them the way we are expecing.                                                                                |
+| **Dependency on Browsers** | HTTP cookies are managed by browsers alone. This could be an issue, if there is a browser that doesn't manage them the way we are expecting.                                                                                |
 
 ### What we could consider for a production product
 Although Dual-Token is slightly safer than plain JWT, we could consider a much safer mechanism which is DPoP (Demonstrating Proof of Possession). on this one, On login, the client generates a key pair and embeds the public key in the JWT. On every request, the client signs a small proof (method, URL, timestamp) with the private key. The server verifies both the token and the proof.
@@ -193,7 +204,13 @@ Although Dual-Token is slightly safer than plain JWT, we could consider a much s
 
 The application lifecycle is managed by a custom state machine. When an actor triggers an event on an application, the engine looks up the transition for that `(event, current status)` pair, runs a chain of actions, updates the application status, and writes an audit log entry.
 
+
+<img width="938" height="714" alt="Screenshot 2026-05-11 at 12 37 49" src="https://github.com/user-attachments/assets/33c42d7f-6de9-414d-b556-d3dbf2bd90e1" />
+
+
+
 The state machine is configured as a static lookup table. There is no external library; each transition is a plain data record that lists the event, the starting status, the target status, the processing level to set, and two lists of actions to run.
+
 
 Here is a sample of our state machine configuration: 
 ```aiignore
@@ -350,6 +367,7 @@ Every transition writes one row to the `audit_log` table regardless of the outco
 ---
 
 ## Data Model
+<img width="938" height="751" alt="Screenshot 2026-05-11 at 12 38 04" src="https://github.com/user-attachments/assets/15482938-a939-4a11-8512-244c55791a30" />
 
 ---
 
@@ -398,7 +416,7 @@ This one is also just like a reminder. Extending Repository instead of JpaReposi
 
 ## API Documentation
 
-*[Find Postman collection here]*
+*[Find Postman collection here](https://github.com/rukundoeric/BLCPBackend/blob/main/BLCP.postman_collection.json)*
 
 ### Response structure
 

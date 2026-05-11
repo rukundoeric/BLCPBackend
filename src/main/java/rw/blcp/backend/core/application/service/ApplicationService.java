@@ -14,12 +14,16 @@ import org.springframework.web.multipart.MultipartFile;
 import rw.blcp.backend.core.application.entity.Application;
 import rw.blcp.backend.core.application.enums.EApplicationEvent;
 import rw.blcp.backend.core.application.enums.EDocumentType;
+import rw.blcp.backend.core.application.record.ApplicationDetailResponse;
 import rw.blcp.backend.core.application.record.ApplicationFilter;
 import rw.blcp.backend.core.application.record.ApplicationResponse;
+import rw.blcp.backend.core.application.record.AttachmentResponse;
 import rw.blcp.backend.core.application.record.CreateApplicationRequest;
 import rw.blcp.backend.core.application.record.TakeActionRequest;
+import rw.blcp.backend.core.application.repository.ApplicationAttachmentRepository;
 import rw.blcp.backend.core.application.repository.ApplicationRepository;
 import rw.blcp.backend.core.application.repository.ApplicationSpecifications;
+import rw.blcp.backend.core.application.repository.AuditLogRepository;
 import rw.blcp.backend.core.auth.entity.User;
 import rw.blcp.backend.core.workflow.engine.StateMachineEngine;
 import rw.blcp.backend.core.workflow.engine.records.AttachmentUpload;
@@ -33,6 +37,8 @@ import rw.blcp.backend.exception.ErrorCode;
 public class ApplicationService {
 
   private final ApplicationRepository applicationRepository;
+  private final ApplicationAttachmentRepository applicationAttachmentRepository;
+  private final AuditLogRepository auditLogRepository;
   private final StateMachineEngine stateMachineEngine;
 
   @Transactional
@@ -112,6 +118,51 @@ public class ApplicationService {
     return applicationRepository
         .findAll(ApplicationSpecifications.withFilter(filter, actor), pageable)
         .map(this::toResponse);
+  }
+
+  @Transactional(readOnly = true)
+  public ApplicationDetailResponse getDetail(String applicationNumber, User actor) {
+    Application application =
+        applicationRepository
+            .findOne(
+                ApplicationSpecifications.withFilter(
+                    new ApplicationFilter(applicationNumber, null, null, null, null), actor))
+            .orElseThrow(() -> new ApiException(ErrorCode.APPLICATION_NOT_FOUND));
+
+    List<AttachmentResponse> attachments =
+        applicationAttachmentRepository.findByApplication(application).stream()
+            .map(
+                applicationAttachment ->
+                    new AttachmentResponse(
+                        applicationAttachment.getId(),
+                        applicationAttachment.getAttachment().getFilename(),
+                        applicationAttachment.getAttachment().getMimeType(),
+                        applicationAttachment.getAttachment().getFileSize(),
+                        applicationAttachment.getDocumentType(),
+                        applicationAttachment.getSubmissionVersion()))
+            .toList();
+
+    String latestOfficerComment =
+        auditLogRepository
+            .findFirstByApplicationAndCommentIsNotNullOrderByCreatedAtDesc(application)
+            .map(log -> log.getComment())
+            .orElse(null);
+
+    return new ApplicationDetailResponse(
+        application.getId(),
+        application.getApplicationNumber(),
+        application.getStatus(),
+        application.getProcessingLevel(),
+        application.getBankName(),
+        application.getBankType(),
+        application.getNotes(),
+        application.getApplicantEmail(),
+        application.getApplicantFirstName(),
+        application.getApplicantLastName(),
+        application.getCreatedAt(),
+        application.getUpdatedAt(),
+        attachments,
+        latestOfficerComment);
   }
 
   private List<AttachmentUpload> buildUploads(

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import rw.blcp.backend.common.dto.ApiResponse;
+import rw.blcp.backend.core.application.record.ApplicationDetailResponse;
 import rw.blcp.backend.core.application.record.ApplicationFilter;
 import rw.blcp.backend.core.application.record.ApplicationResponse;
 import rw.blcp.backend.core.application.record.CreateApplicationRequest;
@@ -66,6 +67,14 @@ public class ApplicationController {
       @AuthenticationPrincipal User currentUser) {
     return ResponseEntity.ok(
         ApiResponse.of(applicationService.fetchApplications(filter, pageable, currentUser)));
+  }
+
+  @GetMapping("/api/v1/applications/{applicationNumber}")
+  @RequiredRoles({RoleName.OFFICER, RoleName.SENIOR_OFFICER, RoleName.APPLICANT})
+  public ResponseEntity<ApiResponse<ApplicationDetailResponse>> getDetail(
+      @PathVariable String applicationNumber, @AuthenticationPrincipal User currentUser) {
+    return ResponseEntity.ok(
+        ApiResponse.of(applicationService.getDetail(applicationNumber, currentUser)));
   }
 
   @PostMapping("/api/v1/applications/{applicationNumber}/action")

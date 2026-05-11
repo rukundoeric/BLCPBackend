@@ -1,6 +1,7 @@
 package rw.blcp.backend.core.application.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +18,7 @@ public interface AuditLogRepository extends Repository<AuditLog, UUID> {
   Page<AuditLog> findAll(Pageable pageable);
 
   Page<AuditLog> findByApplicationNumber(String applicationNumber, Pageable pageable);
+
+  Optional<AuditLog> findFirstByApplicationAndCommentIsNotNullOrderByCreatedAtDesc(
+      Application application);
 }

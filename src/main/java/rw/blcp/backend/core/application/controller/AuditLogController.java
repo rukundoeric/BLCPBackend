@@ -22,7 +22,7 @@ public class AuditLogController {
   private final AuditLogService auditLogService;
 
   @GetMapping("/api/v1/admin/audit-log")
-  @RequiredRoles(RoleName.ADMIN)
+  @RequiredRoles({RoleName.ADMIN, RoleName.OFFICER, RoleName.SENIOR_OFFICER})
   public ResponseEntity<ApiResponse<Page<AuditLogResponse>>> fetchAuditLog(
       @RequestParam(required = false) String applicationNumber,
       @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)

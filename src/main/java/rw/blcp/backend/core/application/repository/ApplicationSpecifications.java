@@ -61,7 +61,10 @@ public class ApplicationSpecifications {
     if (roles.contains(RoleName.ADMIN)) return null;
 
     if (roles.contains(RoleName.SENIOR_OFFICER)) {
-      return (root, query, cb) -> cb.equal(root.get("processingLevel"), EOfficerLevel.LEVEL_2);
+      return (root, query, cb) -> cb.or(
+          cb.equal(root.get("processingLevel"), EOfficerLevel.LEVEL_2),
+          cb.equal(root.get("status"), EApplicationStatus.RESUBMITTED)
+      );
     }
 
     if (roles.contains(RoleName.OFFICER)) {

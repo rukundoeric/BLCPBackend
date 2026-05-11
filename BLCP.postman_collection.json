@@ -14,7 +14,7 @@
       "key": "token",
       "value": "",
       "type": "string",
-      "description": "Access token: populated automatically by the Login requests."
+      "description": "Access token: after login success, copy the value from the response and paste it here."
     },
     {
       "key": "app_num",

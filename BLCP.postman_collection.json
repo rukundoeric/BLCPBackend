@@ -1,0 +1,764 @@
+{
+  "info": {
+    "name": "BLCP API",
+    "description": "Banking Licensing & Compliance Platform. \n\nHow to use:\n1. Import this file into Postman (File \u2192 Import \u2192 select this JSON).\n2. Open the collection, go to Variables, confirm base_url is http://localhost:9009.\n3. Run any Login request under the Auth folder.\n4. The token variable is captured automatically by the post-response script.\n5. All other requests use {{token}} automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:9009",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Access token: populated automatically by the Login requests."
+    },
+    {
+      "key": "app_num",
+      "value": "B2605091637ABCD",
+      "type": "string",
+      "description": "Application number: replace with a real value from the List Applications response."
+    },
+    {
+      "key": "user_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string",
+      "description": "User UUID: replace with a real value when using Admin endpoints."
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login: Applicant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@gmail.com\",\n  \"password\": \"Test@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/public/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login as an Applicant. The response accessToken is automatically saved to the {{token}} collection variable."
+          }
+        },
+        {
+          "name": "Login: Officer (Level 1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"officer@nbr.rw\",\n  \"password\": \"Test@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/public/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login: Senior Officer (Level 2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"senior.officer@nbr.rw\",\n  \"password\": \"Test@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/public/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login: Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@nbr.rw\",\n  \"password\": \"Test@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/public/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refresh access token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/public/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Uses the HttpOnly refreshToken cookie set by the Login response. Postman handles cookies automatically. The new accessToken is saved to {{token}}."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/public/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Deletes all server-side sessions for the authenticated user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get current user profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/user-profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user-profile"
+              ]
+            },
+            "description": "Returns email, firstName, lastName, and roles for the token owner."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "List applications: no filters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/applications?page=0&size=10&sort=createdAt,desc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "applications"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "createdAt,desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List applications: filter by status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/applications?status=SUBMITTED",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "applications"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "SUBMITTED",
+                  "description": "NEW | SUBMITTED | PENDING_RESUBMISSION | RESUBMITTED | PENDING_FINAL_APPROVAL | APPROVED | REJECTED"
+                },
+                {
+                  "key": "bankName",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "bankType",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "applicantEmail",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "applicationNumber",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": true
+                },
+                {
+                  "key": "size",
+                  "value": "10",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "createdAt,desc",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "All filter params are optional and combinable. Disable/enable them in the Params tab."
+          }
+        },
+        {
+          "name": "List applications: filter by applicant email",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/applications?applicantEmail=user@gmail.com",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "applications"
+              ],
+              "query": [
+                {
+                  "key": "applicantEmail",
+                  "value": "user@gmail.com"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get application detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/applications/{{app_num}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "applications",
+                "{{app_num}}"
+              ]
+            },
+            "description": "Returns full detail including attachments and latest officer comment. Update {{app_num}} in the collection variables."
+          }
+        },
+        {
+          "name": "Create application (with documents)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"applicantEmail\":     \"user@gmail.com\",\n  \"applicantFirstName\": \"Alice\",\n  \"applicantLastName\":  \"Mugisha\",\n  \"bankName\":           \"Horizon Commercial Bank Ltd\",\n  \"bankType\":           \"Commercial Bank\",\n  \"notes\":              \"Initial licence application.\",\n  \"documentTypes\":      [\"BUSINESS_PLAN\", \"INCORPORATION_CERTIFICATE\"]\n}",
+                  "type": "text",
+                  "contentType": "application/json",
+                  "description": "JSON metadata \u2014 must have Content-Type application/json"
+                },
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": [],
+                  "description": "Upload a PDF (max 5 MB). Add multiple entries with the same key 'files' for multiple documents."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "applications"
+              ]
+            },
+            "description": "Requires APPLICANT role.\n\nThe 'data' part is the JSON request body sent as a form field with Content-Type application/json.\nThe 'files' parts are the binary document uploads.\n\ndocumentTypes order must match files order.\nValid values: BUSINESS_PLAN | FINANCIAL_STATEMENTS | INCORPORATION_CERTIFICATE | IDENTITY_DOCUMENT | OWNERSHIP_STRUCTURE | OTHER"
+          }
+        },
+        {
+          "name": "Create application (no documents)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"applicantEmail\":     \"user@gmail.com\",\n  \"applicantFirstName\": \"Alice\",\n  \"applicantLastName\":  \"Mugisha\",\n  \"bankName\":           \"Summit Microfinance Ltd\",\n  \"bankType\":           \"Microfinance Institution\",\n  \"notes\":              \"Documents will be uploaded on resubmission.\"\n}",
+                  "type": "text",
+                  "contentType": "application/json"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "applications"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Take action: APPROVE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\":   \"APPROVE\",\n  \"comment\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/applications/{{app_num}}/action",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "applications",
+                "{{app_num}}",
+                "action"
+              ]
+            },
+            "description": "Requires OFFICER or SENIOR_OFFICER role.\nLevel 1 approval \u2192 PENDING_FINAL_APPROVAL.\nLevel 2 approval \u2192 APPROVED (final)."
+          }
+        },
+        {
+          "name": "Take action: REQUEST_FOR_ACTION",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\":   \"REQUEST_FOR_ACTION\",\n  \"comment\": \"Please provide updated financial statements for the last 3 fiscal years and a revised business plan.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/applications/{{app_num}}/action",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "applications",
+                "{{app_num}}",
+                "action"
+              ]
+            },
+            "description": "Sends the application back to the applicant for resubmission. Comment is required."
+          }
+        },
+        {
+          "name": "Take action: REJECT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\":   \"REJECT\",\n  \"comment\": \"Application does not meet minimum capital requirements as per NBR Regulation 05/2023.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/applications/{{app_num}}/action",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "applications",
+                "{{app_num}}",
+                "action"
+              ]
+            },
+            "description": "Permanently rejects the application. Comment is required."
+          }
+        },
+        {
+          "name": "Resubmit application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": [],
+                  "description": "Upload updated documents. Add multiple entries with the same key 'files' for multiple files."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/applications/{{app_num}}/resubmit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "applications",
+                "{{app_num}}",
+                "resubmit"
+              ]
+            },
+            "description": "Requires APPLICANT role. Application must be in PENDING_RESUBMISSION state."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Create officer (Level 1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\":        \"jane.reviewer@nbr.rw\",\n  \"firstName\":    \"Jane\",\n  \"lastName\":     \"Reviewer\",\n  \"password\":     \"SecurePass@1\",\n  \"roleName\":     \"OFFICER\",\n  \"officerLevel\": \"LEVEL_1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/officers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "officers"
+              ]
+            },
+            "description": "Requires ADMIN role. Creates a new user account and an officer record in one step.\nroleName: OFFICER | SENIOR_OFFICER\nofficerLevel: LEVEL_1 | LEVEL_2"
+          }
+        },
+        {
+          "name": "Create senior officer (Level 2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\":        \"senior.reviewer@nbr.rw\",\n  \"firstName\":    \"John\",\n  \"lastName\":     \"Approver\",\n  \"password\":     \"SecurePass@1\",\n  \"roleName\":     \"SENIOR_OFFICER\",\n  \"officerLevel\": \"LEVEL_2\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/officers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "officers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Assign officer role to existing user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleName\":     \"OFFICER\",\n  \"officerLevel\": \"LEVEL_1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/users/{{user_id}}/officer-role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "{{user_id}}",
+                "officer-role"
+              ]
+            },
+            "description": "Requires ADMIN role. Assigns an officer role to a user that already exists. Update {{user_id}} in the collection variables."
+          }
+        }
+      ]
+    }
+  ]
+}
